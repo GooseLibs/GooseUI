@@ -74,6 +74,7 @@ if(UNIX AND NOT APPLE)
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/wl_window.cpp"
+            "src/modules/wayland-protocals/xdg-shell.c"
         )
         
         add_compile_definitions(GOOSEUI_WAYLAND_SUPPORT)

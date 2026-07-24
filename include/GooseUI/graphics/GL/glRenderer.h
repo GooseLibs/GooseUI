@@ -24,6 +24,7 @@
 
     #if GOOSEUI_WAYLAND_SUPPORT
         #include <wayland-client.h>
+        #include <wayland-egl.h>
     #endif
 
 #endif
@@ -34,6 +35,15 @@ namespace GooseUI
     {
         namespace gl
         {
+            #if defined(__unix__) && !defined(__APPLE__) && GOOSEUI_WAYLAND_SUPPORT
+            // Wayland.. *rolls eyes*
+            struct wl_glContext
+            {
+                wl_egl_window* window = nullptr;
+                EGLSurface* surface = nullptr;
+            };
+            #endif
+            
             struct glContext
             {
                 #if defined(_WIN32)
@@ -51,7 +61,7 @@ namespace GooseUI
 
                 EGLContext ctx = EGL_NO_CONTEXT;
                 EGLDisplay display = EGL_NO_DISPLAY;
-
+                
                 #endif
             };
             

@@ -5,7 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 # ------------------------------- Options -------------------------------
 OPTION(GOOSEUI_XORG_SUPPORT "X11 Support" ON)
-OPTION(GOOSEUI_WAYLAND_SUPPORT "Wayland Support" OFF)
+OPTION(GOOSEUI_WAYLAND_SUPPORT "Wayland Support" ON)
 
 OPTION(GOOSEUI_INCLUDE_OPENGL "Use OpenGL" ON)
 OPTION(GOOSEUI_INCLUDE_VULKAN "Use Vulkan" OFF)
