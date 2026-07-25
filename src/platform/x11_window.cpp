@@ -116,9 +116,7 @@ namespace GooseUI::platform // Private
         eglMakeCurrent(eglDisplay, surface, surface, sharedCtx);
     }
     
-    void x11_window::_gl_shareContext()
-    {
-    }
+    void x11_window::_gl_shareContext() {} // Unused
     
     void x11_window::_gl_destoryContext()
     {
