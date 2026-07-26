@@ -17,8 +17,6 @@
 
     #if GOOSEUI_WAYLAND_SUPPORT
     
-    #error Unsuported
-    
     #endif
 
 #endif

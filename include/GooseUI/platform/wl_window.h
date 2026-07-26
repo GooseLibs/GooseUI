@@ -25,11 +25,10 @@ namespace GooseUI
 
             static void _registry_handle(void* data, wl_registry* reg, uint32_t id, const char* interface, uint32_t version);
             static void _registry_remover(void* data, wl_registry* reg, uint32_t id);
+            
             static const wl_registry_listener _registry_listener;
-
-            static void _xdg_surface_configure(void* data, xdg_surface* surface, uint32_t serial);
-            static void _xdg_toplevel_configure(void* data, xdg_toplevel* toplevel, int32_t width, int32_t height, wl_array* states);
-            static void _xdg_toplevel_close(void* data, xdg_toplevel* toplevel);
+            static const xdg_surface_listener _xdg_surface_listener;
+            static const xdg_toplevel_listener _xdg_toplevel_listener;
 
             wl_surface* _surface = nullptr;
             xdg_surface* _xdg_surface = nullptr;
