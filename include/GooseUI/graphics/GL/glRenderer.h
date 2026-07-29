@@ -40,7 +40,7 @@ namespace GooseUI
             struct wl_glContext
             {
                 wl_egl_window* window = nullptr;
-                EGLSurface* surface = nullptr;
+                EGLSurface surface = nullptr;
             };
             #endif
             

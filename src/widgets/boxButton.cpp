@@ -21,6 +21,11 @@ namespace GooseUI::widgets
             _color = { 0.85f, 0.85f, 0.85f, 1.0f };
         }
 
+    boxButton::~boxButton()
+    {
+        _evtDispatcher.remove(_eventID);
+    }
+
     boxButton* createBoxButton(int eventID, event::dispatcher& evtDispatcher, widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
         { return new boxButton(eventID, evtDispatcher, widgetScaleing, widgetAlignment, x, y, width, height); }
 

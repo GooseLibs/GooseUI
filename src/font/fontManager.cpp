@@ -10,6 +10,14 @@ namespace GooseUI::font
         return instance;
     }
 
+    void manager::setFontFactory(void *factory)
+    {
+        if(_fontFactory){ return; }
+        _fontFactory = factory;
+    }
+    
+    void* manager::getFontFactory(){ return _fontFactory; }
+
     absractions::iFont* manager::getFont(const std::string &PathToFont, const font::fontData &fontData)
     {
          std::string key = PathToFont + "_" + ((fontData.fontType == type::bitmap) ? "bitmap" : "SDF") + "_" + std::to_string(fontData.size);

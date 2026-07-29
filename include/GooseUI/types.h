@@ -10,12 +10,28 @@ namespace GooseUI
         class iRenderer;    //FORWARD DECLERATION
         class iFont;        //FORWARD DECLERATION
     }
+
+    namespace event
+    {
+        class dispatcher;   //FORWARD DECLERATION
+    }
+
+    namespace graphics 
+    {
+        struct titleBar;    //FORWARD DECLERATION
+    }
         
     enum class displayService
     {
         win32,
         x11,
         wayland
+    };
+
+    enum class windowDecoration
+    {
+        ServerSide,
+        ClientSide
     };
     
     enum screenPosistion

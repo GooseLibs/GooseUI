@@ -1,15 +1,12 @@
 #include "GooseUI/context.h"
 
 
-namespace GooseUI // Public
+namespace GooseUI // Private
 {
     // Graphic
     static application::backendType _backendType = application::backendType::OpenGL;
     static absractions::iRenderer* _renderer = nullptr;
     //static application* _instance = nullptr;
-    
-    // Font
-    static void* _fontFactory = nullptr;
 }
 
 namespace GooseUI // Public
@@ -34,13 +31,4 @@ namespace GooseUI // Public
     
     application::backendType application::getBackendType(){ return _backendType; }
     absractions::iRenderer* application::getRenderer(){ return _renderer; }
-        
-    // Font
-    void application::setFontFactory(void *factory)
-    {
-        if(_fontFactory){ return; }
-        _fontFactory = factory;
-    }
-    
-    void* application::getFontFactory(){ return _fontFactory; }
 }

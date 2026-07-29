@@ -13,4 +13,7 @@ namespace GooseUI::event
 
     void dispatcher::add(const int& eventID, std::function<void(event::data)> EvtCallback) 
         { dispatcher::EventsObj[eventID] = EvtCallback; }
+
+    void dispatcher::remove(const int& eventID)
+        { dispatcher::EventsObj.erase(eventID); }
 }

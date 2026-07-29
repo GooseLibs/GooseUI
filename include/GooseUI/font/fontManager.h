@@ -18,10 +18,16 @@ namespace GooseUI
         class manager
         {
             manager() = default;
+
+            void* _fontFactory = nullptr;
             std::unordered_map<std::string, absractions::iFont*> _fonts;
 
             public:
             static manager& instance();
+
+            void setFontFactory(void* factory);
+            void* getFontFactory();
+            
             absractions::iFont* getFont(const std::string &PathToFont, const font::fontData &fontData);
         };
     }

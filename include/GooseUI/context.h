@@ -14,6 +14,7 @@
     This also simplifies adding a access point for a backendPanel to allow user access without dependence on making a custom widget
     
     4/27/26 - Added the fontFactory pointer here, it should also be static, but I dont need a identifier (backendType) because there only one font lib per os (Windows DWrite, Everything else FreeType)
+    7/27/26 - Moved fontFactory pointer to fondManager to encurage its use
 */
 
 namespace GooseUI
@@ -28,10 +29,6 @@ namespace GooseUI
         static void init(backendType backendType);
         static backendType getBackendType();
         static absractions::iRenderer* getRenderer();
-        
-        // Font
-        static void setFontFactory(void* factory);
-        static void* getFontFactory();
     };
 }
 

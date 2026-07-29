@@ -16,6 +16,8 @@ namespace GooseUI
 
             public:
             void add(const int& eventID, std::function<void(event::data)> EvtCallback);
+            void remove(const int& eventID);
+            
             void dispatch(const int& eventID, const event::data& Evt);
         };
     }

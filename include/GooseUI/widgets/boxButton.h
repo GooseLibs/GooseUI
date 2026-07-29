@@ -22,7 +22,7 @@ namespace GooseUI
 
             public:
             boxButton(int eventID, event::dispatcher& evtDispatcher, widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height);
-            ~boxButton() = default;
+            ~boxButton();
 
             void setOutlineSize(int size);
             void setColor(const color& color);
