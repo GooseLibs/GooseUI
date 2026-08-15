@@ -100,10 +100,10 @@ namespace GooseUI::graphics::gl // Public
         glClearColor(color.R, color.G, color.B, color.A);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glViewport(0, 0, windowWidth, windowHeight);
+        glViewport(0, 0, _windowWidth, _windowHeight);
 
         int localResolution = glGetUniformLocation(_sharedShader.shader, "uResolution");
-        glUniform2f(localResolution, (float)windowWidth, (float)windowHeight);
+        glUniform2f(localResolution, (float)_windowWidth, (float)_windowHeight);
     }
     
     void glRenderer::endFrame()

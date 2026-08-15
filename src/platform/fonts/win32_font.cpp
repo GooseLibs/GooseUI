@@ -1,13 +1,13 @@
 #include "GooseUI/platform/win32_font.h"
 
-#include "GooseUI/context.h"
+#include "GooseUI/font/fontManager.h"
 
 
 namespace GooseUI::platform // Private
 {
     font::glyph win32_font::_getGlyphBitmap(UINT16 index, float scale, const DWRITE_GLYPH_METRICS& glyphMetrics, const DWRITE_FONT_METRICS& fontMetrics, const font::cfg::bitmap& config)
     {
-        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(application::getFontFactory());
+        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::getFontFactory());
         font::glyph t_glyph{};
         
         // Rasterize
@@ -89,7 +89,7 @@ namespace GooseUI::platform // Private
 
     font::glyph win32_font::_getGlyphSDF(UINT16 index, float scale, const DWRITE_GLYPH_METRICS& glyphMetrics, const DWRITE_FONT_METRICS& fontMetrics, const font::cfg::SDF& config)
     {
-        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(application::getFontFactory());
+        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::getFontFactory());
         font::glyph t_glyph{};
 
         // Ima get bitmap working before SDF
@@ -101,7 +101,7 @@ namespace GooseUI::platform // Public
 {
     win32_font::win32_font()
     {
-        if(application::getFontFactory() != nullptr){ return; }
+        if(font::manager::getFontFactory() != nullptr){ return; }
         Microsoft::WRL::ComPtr<IDWriteFactory> factory;
         
         HRESULT hResult = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &factory);

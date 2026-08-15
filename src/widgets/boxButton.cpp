@@ -5,15 +5,15 @@
 
 namespace GooseUI::widgets
 {
-    boxButton::boxButton(int eventID, event::dispatcher& evtDispatcher, widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
-        : _eventID(eventID), _evtDispatcher(evtDispatcher)
+    boxButton::boxButton(const boxButtonCreationInfo& info)
+        : _eventID(info.eventID), _evtDispatcher(*info.evtDispatcher)
         {
-            _widgetScaleing = widgetScaleing;
-            _alignment = widgetAlignment;
-            _posX = x;
-            _posY = y;
-            _width = width;
-            _height = height;
+            _widgetScaleing = info.scaleing;
+            _alignment = info.alignment;
+            _posX = info.X;
+            _posY = info.Y;
+            _width = info.width;
+            _height = info.height;
     
             _isVisible = true;
             _isPressed = false;
@@ -26,8 +26,7 @@ namespace GooseUI::widgets
         _evtDispatcher.remove(_eventID);
     }
 
-    boxButton* createBoxButton(int eventID, event::dispatcher& evtDispatcher, widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
-        { return new boxButton(eventID, evtDispatcher, widgetScaleing, widgetAlignment, x, y, width, height); }
+    boxButton* createBoxButton(const boxButtonCreationInfo& info){ return new boxButton(info); }
 
     // Widget Specific
     void boxButton::setOutlineSize(int size) { _outlineSize = size; }

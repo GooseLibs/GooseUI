@@ -5,14 +5,14 @@
 
 namespace GooseUI::widgets
 {
-    panel::panel(widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
+    panel::panel(const panelCreationInfo& info)
     {
-        _widgetScaleing = widgetScaleing;
-        _alignment = widgetAlignment;
-        _posX = x;
-        _posY = y;
-        _width = width;
-        _height = height;
+        _widgetScaleing = info.scaleing;
+        _alignment = info.alignment;
+        _posX = info.X;
+        _posY = info.Y;
+        _width = info.width;
+        _height = info.height;
 
         _isVisible = true;
         _outlineSize = 0;
@@ -20,8 +20,7 @@ namespace GooseUI::widgets
         _outlineColor = { 0.0f, 0.0f, 0.0f, 0.0f };
     }
 
-    panel* createPanel(widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
-        { return new panel(widgetScaleing, widgetAlignment, x, y, width, height); }
+    panel* createPanel(const panelCreationInfo& info){ return new panel(info); }
 
     // Widget Specific
     void panel::setColor(const color& color){ _color = color; }

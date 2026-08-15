@@ -8,8 +8,8 @@ if(WIN32)
     LIST(APPEND GOOSEUI_LIBRARY "dwrite")
     LIST(
         APPEND GOOSEUI_SRC
-        "src/platform/win32_window.cpp"
-        "src/platform/win32_font.cpp"
+        #"src/platform/win32_window.cpp"
+        #"src/platform/win32_font.cpp"
     )
 endif()
 
@@ -28,7 +28,7 @@ if(UNIX AND NOT APPLE)
     LIST(APPEND GOOSEUI_LIBRARY Freetype::Freetype)
     LIST(
         APPEND GOOSEUI_SRC
-        "src/platform/freetype_font.cpp"
+        "src/platform/fonts/freetype_font.cpp"
     )
 
     # EGL
@@ -46,6 +46,7 @@ if(UNIX AND NOT APPLE)
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/x11_window.cpp"
+            "src/platform/x11_static.cpp"
         )
         
         add_compile_definitions(GOOSEUI_XORG_SUPPORT)
@@ -73,9 +74,9 @@ if(UNIX AND NOT APPLE)
         LIST(APPEND GOOSEUI_BUILD_FLAGS "wayland-client")
         LIST(
             APPEND GOOSEUI_SRC
-            "src/platform/wl_window.cpp"
+            #"src/platform/wl_window.cpp"
             
-            "src/modules/wayland-protocals/xdg-shell.c"
+            #"src/modules/wayland-protocals/xdg-shell.c"
         )
         
         add_compile_definitions(GOOSEUI_WAYLAND_SUPPORT)

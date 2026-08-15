@@ -7,6 +7,17 @@
 
 namespace GooseUI
 {
+    struct panelCreationInfo
+    {
+        widgetAlignment alignment;
+        int X = 0;
+        int Y = 0;
+
+        widgetScaleing scaleing;
+        int width;
+        int height;
+    };
+    
     namespace widgets
     {
         class panel : public absractions::iWidget
@@ -17,7 +28,7 @@ namespace GooseUI
             int _outlineSize;
 
             public:
-            panel(widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height);
+            panel(const panelCreationInfo& info);
             ~panel() = default;
 
             void setColor(const color& color);
@@ -29,12 +40,7 @@ namespace GooseUI
             void pollEvent(event::data evtData) override;
         };
 
-        panel* createPanel(
-            widgetScaleing widgetScaleing, 
-            int widgetAlignment, 
-            int x, int y, 
-            int width, int height
-        );
+        panel* createPanel(const panelCreationInfo& info);
     }
 }
 

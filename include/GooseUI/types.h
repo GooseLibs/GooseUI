@@ -15,11 +15,6 @@ namespace GooseUI
     {
         class dispatcher;   //FORWARD DECLERATION
     }
-
-    namespace graphics 
-    {
-        struct titleBar;    //FORWARD DECLERATION
-    }
         
     enum class displayService
     {

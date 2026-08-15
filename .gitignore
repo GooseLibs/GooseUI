@@ -4,16 +4,10 @@ build/
 .old/
 
 # Code Editors
-.clangd
-.cache
 __cmake_systeminformation/
-.vscode/
+.cache/
 .zed/
 
-# CMake
-CMakePresets.json
-CMakeUser.cmake
-cmake/modules
-
-# Testing files
-/test
+# Configs
+CMakeUserPresets.json
+.clangd

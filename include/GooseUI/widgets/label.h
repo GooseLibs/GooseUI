@@ -10,6 +10,17 @@ namespace GooseUI
 {
     namespace widgets
     {
+        struct labelCreationInfo
+        {
+            widgetAlignment alignment;
+            int X = 0;
+            int Y = 0;
+    
+            widgetScaleing scaleing;
+            int width;
+            int height;
+        };
+        
         class label : public absractions::iWidget
         {
             color _color;
@@ -17,7 +28,7 @@ namespace GooseUI
             std::string _label;
 
             public:
-            label(widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height);
+            label(const labelCreationInfo& info);
             ~label() = default;
 
             void setFont(const std::string &fontPath, font::fontData fontData);
@@ -29,12 +40,7 @@ namespace GooseUI
             void pollEvent(event::data evtData) override;
         };
 
-        label* createLable(
-            widgetScaleing widgetScaleing, 
-            int widgetAlignment, 
-            int x, int y, 
-            int width, int height
-        );
+        label* createLable(const labelCreationInfo& info);
     }
 }
 

@@ -2,7 +2,7 @@
 #include "GooseUI/abstractions/iWindow.h"
 
 #include "GooseUI/graphics/layout.h"
-
+#include <iostream>
 
 namespace GooseUI::absractions
 {
@@ -26,6 +26,10 @@ namespace GooseUI::absractions
             );
         }else 
         {
+            int yOffset = 0;
+            if (_hostWindow->getClientTitleBar() != nullptr && this != _hostWindow->getClientTitleBar()) 
+                { yOffset = _hostWindow->getClientTitleBar()->getHeight(); }
+            
             graphics::layout::calculateLayout(
                 false,
                 _widgetScaleing,
@@ -37,6 +41,9 @@ namespace GooseUI::absractions
                 _posX, _posY,
                 _width, _height
             );
+
+            if(_hostWindow->getClientTitleBar() != nullptr && this != _hostWindow->getClientTitleBar())
+                { if(_posY < yOffset){ _posY = yOffset; } }
         }
     }
     
@@ -47,11 +54,15 @@ namespace GooseUI::absractions
         
         _hostWindow = window;
         _hostWindow->addWidgetToVector(this);
+
+        int yOffset = 0;
+        if (_hostWindow->getClientTitleBar() != nullptr && this != _hostWindow->getClientTitleBar()) 
+            { yOffset = _hostWindow->getClientTitleBar()->getHeight(); }
         
         graphics::layout::getInitalOffsets(
             _initalBounds, 
             _hostWindow->getWidth(), 
-            _hostWindow->getHeight(), 
+            _hostWindow->getHeight(),
             _posX, _posY, 
             _width, _height
         );

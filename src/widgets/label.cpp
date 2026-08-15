@@ -8,21 +8,20 @@
 
 namespace GooseUI::widgets
 {
-    label::label(widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
+    label::label(const labelCreationInfo& info)
     {
-        _widgetScaleing = widgetScaleing;
-        _alignment = widgetAlignment;
-        _posX = x;
-        _posY = y;
-        _width = width;
-        _height = height;
+        _widgetScaleing = info.scaleing;
+        _alignment = info.alignment;
+        _posX = info.X;
+        _posY = info.Y;
+        _width = info.width;
+        _height = info.height;
 
         _isVisible = true;
         _color = { 0.0f, 0.0f, 0.0f, 1.0f };
     }
 
-    label* createLable(widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
-        { return new label(widgetScaleing, widgetAlignment, x, y, width, height); }
+    label* createLable(const labelCreationInfo& info){ return new label(info); }
 
     // Widget Specific
     void label::setFont(const std::string &fontPath, font::fontData fontData){ _font = font::manager::instance().getFont(fontPath, fontData); }

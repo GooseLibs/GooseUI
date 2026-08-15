@@ -39,14 +39,15 @@ namespace GooseUI
             void removeFromWindow();
             void setParent(iWidget* widget);
             void removeParent();
+
+            // Optinal Overides
+            virtual void show() { _isVisible = true; }
+            virtual void hide() { _isVisible = false; }
             
-            void show() { _isVisible = true; }
-            void hide() { _isVisible = false; }
-            
-            void setSize(int width, int height) { _width = width, _height = height; };
-            void setPosistion(int X, int Y) { _posX = X, _posY = Y; };
-            void setScaleRestraints(int minWidth, int minHeight, int maxWidth, int maxHeight) { _layoutRestraints.minWidth = minWidth; _layoutRestraints.minHeight = minHeight; _layoutRestraints.maxWidth = maxWidth; _layoutRestraints.maxHeight = maxHeight; };
-            void setPosRestraints(int minX, int minY, int maxX, int maxY) { _layoutRestraints.minX = minX; _layoutRestraints.minY = minY; _layoutRestraints.maxX = maxX; _layoutRestraints.maxY = maxY; };
+            virtual void setSize(int width, int height) { _width = width, _height = height; };
+            virtual void setPosistion(int X, int Y) { _posX = X, _posY = Y; };
+            virtual void setScaleRestraints(int minWidth, int minHeight, int maxWidth, int maxHeight) { _layoutRestraints.minWidth = minWidth; _layoutRestraints.minHeight = minHeight; _layoutRestraints.maxWidth = maxWidth; _layoutRestraints.maxHeight = maxHeight; };
+            virtual void setPosRestraints(int minX, int minY, int maxX, int maxY) { _layoutRestraints.minX = minX; _layoutRestraints.minY = minY; _layoutRestraints.maxX = maxX; _layoutRestraints.maxY = maxY; };
             
             // Returns
             iWindow* getWindow() const { return _hostWindow; }

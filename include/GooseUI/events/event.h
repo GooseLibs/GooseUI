@@ -19,6 +19,9 @@ namespace GooseUI
 
             float mouseX = 0;
             float mouseY = 0;
+
+            float mouseRootX = 0;
+            float mouseRootY = 0;
         };
     }
 }
