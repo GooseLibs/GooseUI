@@ -5,9 +5,10 @@
 #include "GooseUI/graphics/titleBar.h"
 #include "GooseUI/abstractions/iWindow.h"
 
+#include <X11/Xlib.h>
 #include <string>
 
-#define X11_BORDER_PADDING 6
+#define X11_BORDER_PADDING 3
 
 
 namespace GooseUI 
@@ -20,6 +21,7 @@ namespace GooseUI
         void x11_ModifieDecoration(absractions::iWindow *window, graphics::titleBarData *&titleBar, const titlebarCreationInfo& titleBarInfo);
 
         // Resizeing
+        Cursor x11_getCursor(Display* display, int direction);
         int x11_edgeHitTest(int x, int y, int win_width, int win_height);
         void x11_startNativeResize(absractions::iWindow* iWindow, int mouseRootX, int mouseRootY, int direction);
     }

@@ -220,7 +220,7 @@ namespace GooseUI::platform // Public
         // Protocalls and input
         _wm_delete_window = XInternAtom(_display, "WM_DELETE_WINDOW", False);
         XSetWMProtocols(_display, _window, &_wm_delete_window, 1);
-        XSelectInput(_display, _window, ExposureMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask);
+        XSelectInput(_display, _window, ExposureMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask | PointerMotionMask);
         
         // Init Backend
         _bgColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -433,6 +433,24 @@ namespace GooseUI::platform // Public
                 case ClientMessage:
                 {
                     if((Atom)event.xclient.data.l[0] == _wm_delete_window) { _isRunning = false; handelWidgets = false; }
+                    break;
+                }
+                case MotionNotify:
+                {
+                    if(!_clientDecorations){ break; }
+                    
+                    int x = event.xmotion.x + X11_BORDER_PADDING;
+                    int y = event.xmotion.y + X11_BORDER_PADDING;
+
+                    int resizeDirection = x11_edgeHitTest(x, y, getWidth(), getHeight());
+                    if (resizeDirection != -1) 
+                    {
+                        Cursor cursor = x11_getCursor(_display, resizeDirection);
+                        XDefineCursor(_display, _window, cursor);
+                        XFreeCursor(_display, cursor);
+                    } 
+                    else{ XUndefineCursor(_display, _window); }
+
                     break;
                 }
                 case ButtonPress:

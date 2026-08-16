@@ -2,6 +2,7 @@
 #include "GooseUI/platform/x11_window.h"
 
 #include <X11/Xatom.h>
+#include <X11/Xcursor/Xcursor.h>
 
 #define X11_DEFAULT_CLIENT_DECORATION_HEIGHT 25
 
@@ -166,6 +167,38 @@ namespace GooseUI::platform // Public
         if (left)            return 7; // Left
     
         return -1;
+    }
+
+    Cursor x11_getCursor(Display* display, int direction)
+    {
+        enum resizeDirection 
+        {
+            WM_RESIZE_TOPLEFT     = 0,
+            WM_RESIZE_TOP         = 1,
+            WM_RESIZE_TOPRIGHT    = 2,
+            WM_RESIZE_RIGHT       = 3,
+            WM_RESIZE_BOTTOMRIGHT = 4,
+            WM_RESIZE_BOTTOM      = 5,
+            WM_RESIZE_BOTTOMLEFT  = 6,
+            WM_RESIZE_LEFT        = 7,
+            WM_RESIZE_MOVE        = 8
+        };
+    
+        const char* cursorName = nullptr;
+        switch (direction) 
+        {
+            case WM_RESIZE_TOP:         cursorName = "n-resize"; break;
+            case WM_RESIZE_BOTTOM:      cursorName = "s-resize"; break;
+            case WM_RESIZE_LEFT:        cursorName = "w-resize"; break;
+            case WM_RESIZE_RIGHT:       cursorName = "e-resize"; break;
+            case WM_RESIZE_TOPLEFT:     cursorName = "nw-resize"; break;
+            case WM_RESIZE_TOPRIGHT:    cursorName = "ne-resize"; break;
+            case WM_RESIZE_BOTTOMLEFT:  cursorName = "sw-resize"; break;
+            case WM_RESIZE_BOTTOMRIGHT: cursorName = "se-resize"; break;
+            default:                    return None;
+        }
+    
+        return XcursorLibraryLoadCursor(display, cursorName);
     }
 
     void x11_startNativeResize(absractions::iWindow *iwindow, int mouseRootX, int mouseRootY, int direction)
