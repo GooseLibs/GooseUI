@@ -3,11 +3,9 @@
 #if defined(_WIN32)
 
     #include "GooseUI/platform/win32_window.h"
-    #define API GooseUI::platform::win32_window(const windowCreationInfo& info);
-
-    GooseUI::absractions::iWindow* GooseUI::absractions::createWindow(info)
+    GooseUI::absractions::iWindow* GooseUI::absractions::createWindow(const windowCreationInfo& info)
     {
-        return new API;
+        return new GooseUI::platform::win32_window(info);
     }
 
 #elif defined(__unix__) && !defined(__APPLE__)

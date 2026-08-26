@@ -2,9 +2,9 @@
 #include "GooseUI/abstractions/iWindow.h"
 
 #include "GooseUI/graphics/layout.h"
-#include <iostream>
 
-namespace GooseUI::absractions
+
+namespace GooseUI::absractions // Abstraction Default
 {
     void iWidget::_preDraw()
     {

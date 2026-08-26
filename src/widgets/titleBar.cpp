@@ -3,7 +3,7 @@
 #include "GooseUI/context.h"
 
 
-namespace GooseUI::widgets
+namespace GooseUI::widgets // Public
 {
     titleBar::titleBar(int eventID, event::dispatcher& evtDispatcher, widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height)
     : _eventID(eventID), _evtDispatcher(evtDispatcher)

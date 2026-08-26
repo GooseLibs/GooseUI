@@ -2,7 +2,7 @@
 #include "GooseUI/abstractions/iFont.h"
 
 
-namespace GooseUI::font
+namespace GooseUI::font // Public
 {
     manager& manager::instance()
     {

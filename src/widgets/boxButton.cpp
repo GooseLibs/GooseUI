@@ -3,7 +3,7 @@
 #include "GooseUI/context.h"
 
 
-namespace GooseUI::widgets
+namespace GooseUI::widgets // Public
 {
     boxButton::boxButton(const boxButtonCreationInfo& info)
         : _eventID(info.eventID), _evtDispatcher(*info.evtDispatcher)

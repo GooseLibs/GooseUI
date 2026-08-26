@@ -22,7 +22,7 @@
 #endif
 
 
-namespace GooseUI::event
+namespace GooseUI::event // Public
 {
     void loop::add(absractions::iWindow *window)
     {

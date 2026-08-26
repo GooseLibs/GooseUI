@@ -16,7 +16,6 @@ namespace GooseUI::platform // Private
             {
                 graphics::gl::glRenderer* glBackend = static_cast<graphics::gl::glRenderer*>(application::getRenderer());
                 eglMakeCurrent(glBackend->getContext().display, (EGLSurface)_windowCtx, (EGLSurface)_windowCtx, glBackend->getContext().ctx);
-
                 break;
             }
             #endif

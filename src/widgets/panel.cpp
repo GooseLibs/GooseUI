@@ -3,7 +3,7 @@
 #include "GooseUI/context.h"
 
 
-namespace GooseUI::widgets
+namespace GooseUI::widgets // Public
 {
     panel::panel(const panelCreationInfo& info)
     {

@@ -6,7 +6,7 @@
 #include "GooseUI/font/fontManager.h"
 
 
-namespace GooseUI::widgets
+namespace GooseUI::widgets // Public
 {
     label::label(const labelCreationInfo& info)
     {
