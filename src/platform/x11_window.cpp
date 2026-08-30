@@ -379,7 +379,6 @@ namespace GooseUI::platform // Public
     }
 
     void x11_window::show() { XMapWindow(_display, _window); XFlush(_display); }
-    
     void x11_window::hide() { XUnmapWindow(_display, _window); XFlush(_display); }
     void x11_window::destroy() { XDestroyWindow(_display, _window); XFlush(_display); }
 

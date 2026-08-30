@@ -1,4 +1,4 @@
-#include "GooseUI/platform/win32_font.h"
+#include "GooseUI/platform/fonts/win32_font.h"
 
 #include "GooseUI/font/fontManager.h"
 
@@ -7,7 +7,7 @@ namespace GooseUI::platform // Private
 {
     font::glyph win32_font::_getGlyphBitmap(UINT16 index, float scale, const DWRITE_GLYPH_METRICS& glyphMetrics, const DWRITE_FONT_METRICS& fontMetrics, const font::cfg::bitmap& config)
     {
-        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::getFontFactory());
+        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::instance().getFontFactory());
         font::glyph t_glyph{};
         
         // Rasterize
@@ -89,7 +89,7 @@ namespace GooseUI::platform // Private
 
     font::glyph win32_font::_getGlyphSDF(UINT16 index, float scale, const DWRITE_GLYPH_METRICS& glyphMetrics, const DWRITE_FONT_METRICS& fontMetrics, const font::cfg::SDF& config)
     {
-        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::getFontFactory());
+        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::instance().getFontFactory());
         font::glyph t_glyph{};
 
         // Ima get bitmap working before SDF
@@ -101,19 +101,19 @@ namespace GooseUI::platform // Public
 {
     win32_font::win32_font()
     {
-        if(font::manager::getFontFactory() != nullptr){ return; }
+        if(font::manager::instance().getFontFactory() != nullptr){ return; }
         Microsoft::WRL::ComPtr<IDWriteFactory> factory;
         
         HRESULT hResult = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &factory);
         if(FAILED(hResult)) { printf("GooseUI: Faild to create DirectWriteFactory \n"); }
 
-        application::setFontFactory(reinterpret_cast<void*>(factory.Get()));
+        font::manager::instance().setFontFactory(reinterpret_cast<void*>(factory.Get()));
     }
 
     bool win32_font::load(const std::string &PathToFont, const font::fontData &fontData)
     {
         _initilized = false;
-        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(application::getFontFactory());
+        IDWriteFactory* pFactory = reinterpret_cast<IDWriteFactory*>(font::manager::instance().getFontFactory());
         if(pFactory == nullptr){ printf("GooseUI: Faild to get DirectWriteFactory \n"); return false; }
 
         _fontData = fontData;
