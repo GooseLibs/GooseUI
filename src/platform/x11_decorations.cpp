@@ -1,4 +1,4 @@
-#include "GooseUI/platform/x11_static.h"
+#include "GooseUI/platform/x11_decorations.h"
 #include "GooseUI/platform/x11_window.h"
 
 #include <X11/Xatom.h>

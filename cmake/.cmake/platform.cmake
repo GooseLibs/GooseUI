@@ -9,7 +9,7 @@ if(WIN32)
     LIST(
         APPEND GOOSEUI_SRC
         "src/platform/win32_window.cpp"
-        "src/platform/win32_static.cpp"
+        "src/platform/win32_decorations.cpp"
         "src/platform/fonts/win32_font.cpp"
     )
 endif()
@@ -47,7 +47,7 @@ if(UNIX AND NOT APPLE)
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/x11_window.cpp"
-            "src/platform/x11_static.cpp"
+            "src/platform/x11_decorations.cpp"
         )
         
         add_compile_definitions(GOOSEUI_XORG_SUPPORT)
