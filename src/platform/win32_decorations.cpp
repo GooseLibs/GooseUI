@@ -6,6 +6,14 @@
 
 namespace GooseUI::platform // Local
 {
+    bool _hasDecorations(HWND hwnd)
+    {
+        LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
+        DWORD flags = WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+
+        return (style & flags) != 0;
+    }
+
     void _CreateDecoration(windowDecoration type, graphics::titleBarData*& titleBar, absractions::iWindow* window, event::dispatcher& evtDispatcher)
     {
         platform::win32_window* wWindow = static_cast<platform::win32_window*>(window);
@@ -34,7 +42,7 @@ namespace GooseUI::platform // Local
         uintptr_t windowEventID = reinterpret_cast<uintptr_t>(wWindow->getHwnd()) * 2;
 
         titleBar->bar = new widgets::titleBar(windowEventID, evtDispatcher, SCALE_HORIZONTAL, ALIGN_LEFT | ALIGN_RIGHT | ALIGN_TOP, 0, 0, wWindow->getWidth(), WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT);
-        evtDispatcher.add(windowEventID, [wWindow](GooseUI::event::data evt){ 
+        evtDispatcher.add(windowEventID, [wWindow](GooseUI::event::data evt){
             ::ReleaseCapture();
             ::SendMessage(wWindow->getHwnd(), WM_NCLBUTTONDOWN, HTCAPTION, 0);
         });
@@ -45,20 +53,20 @@ namespace GooseUI::platform // Local
             boxButtonCreationInfo info {};
             info.eventID = windowEventID + 1;
             info.evtDispatcher = &evtDispatcher;
-            info.scaleing = SCALE_NONE; 
+            info.scaleing = SCALE_NONE;
             info.alignment = ALIGN_RIGHT | ALIGN_TOP | ALIGN_BOTTOM;
             info.X = titleBar->bar->getWidth() - WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT;
             info.Y = titleBar->bar->getHeight() - WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT + 2;
             info.width = WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT - 6;
             info.height = WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT - 6;
             titleBar->closeButton = widgets::createBoxButton(info);
-            
+
             titleBar->closeButton->setColor({ 0.91f, 0.12f, 0.15f, 1.0f });
             evtDispatcher.add(windowEventID + 1, [wWindow](GooseUI::event::data evt){ wWindow->destroy(); });
             titleBar->closeButton->setParent(titleBar->bar);
         }
     }
-    
+
     void _removeDecoration(graphics::titleBarData* titleBar, absractions::iWindow* window)
     {
         platform::win32_window* wWindow = static_cast<platform::win32_window*>(window);
@@ -66,8 +74,8 @@ namespace GooseUI::platform // Local
         {
             uintptr_t windowEventID = reinterpret_cast<uintptr_t>(wWindow->getHwnd()) * 2;
             if(titleBar->closeButton != nullptr)
-            { 
-                titleBar->closeButton->removeParent(); 
+            {
+                titleBar->closeButton->removeParent();
                 titleBar->evtDispatcher->remove(windowEventID + 1);
             }
 
@@ -99,14 +107,14 @@ namespace GooseUI::platform // Public
 
         LONG_PTR style = GetWindowLongPtr(wWindow->getHwnd(), GWL_STYLE);
         DWORD flags = WS_CAPTION | WS_THICKFRAME | WS_DLGFRAME;
-        
+
         if(!titleBarInfo.visible)
         {
-            if((style & flags) != 0){ _removeDecoration(titleBar, window); }
+            if(_hasDecorations(wWindow->getHwnd())){ _removeDecoration(titleBar, window); }
             return;
         }
 
-        if((style & flags) != 0){ _CreateDecoration(titleBarInfo.type, titleBar, window, *titleBarInfo.evtDispatcher); }
+        if(!_hasDecorations(wWindow->getHwnd())){ _CreateDecoration(titleBarInfo.type, titleBar, window, *titleBarInfo.evtDispatcher); }
     }
 
     int win32_edgeHitTest(int x, int y, int win_width, int win_height)

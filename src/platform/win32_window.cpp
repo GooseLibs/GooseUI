@@ -22,7 +22,7 @@ namespace GooseUI::platform // Private
     LRESULT CALLBACK win32_window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         win32_window* window = reinterpret_cast<win32_window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-        switch (uMsg) 
+        switch (uMsg)
         {
             case WM_NCHITTEST:
             {
@@ -41,26 +41,36 @@ namespace GooseUI::platform // Private
 
                 return 0;
             }
-            
+
+            case WM_NCCALCSIZE:
+            {
+                if(wParam == TRUE && window && window->_clientDecorations)
+                {
+                    return 0;
+                }
+                
+                return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+            }
+
             case WM_CLOSE:
             {
                 PostQuitMessage(0);
                 return 0;
             }
-            
+
             case WM_DESTROY:
             {
                 if(window)
                 {
                     SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
                     win32_window* localSelf = window;
-                    window = nullptr; 
+                    window = nullptr;
                     delete localSelf;
                 }
 
                 return 0;
             }
-            
+
             case WM_SIZING:
             {
                 if(window){ window->renderWidgets(); }
@@ -74,7 +84,7 @@ namespace GooseUI::platform // Private
 
     void win32_window::_startRenderFrame()
     {
-        switch (application::getBackendType()) 
+        switch (application::getBackendType())
         {
             #if GOOSEUI_HAS_OPENGL
             case application::backendType::OpenGL:
@@ -84,23 +94,23 @@ namespace GooseUI::platform // Private
                 break;
             }
             #endif
-            
+
             #if GOOSEUI_ENABLE_VULKAN
             #endif
-            
+
             default:
                 printf("GooseUI: Backend Not Initilized! \n");
                 break;
         }
-        
+
         application::getRenderer()->beginFrame(getWidth(), getHeight(), _bgColor);
     }
 
     void win32_window::_endRenderFrame()
     {
         application::getRenderer()->endFrame();
-        
-        switch (application::getBackendType()) 
+
+        switch (application::getBackendType())
         {
             #if GOOSEUI_HAS_OPENGL
             case application::backendType::OpenGL:
@@ -110,10 +120,10 @@ namespace GooseUI::platform // Private
                 break;
             }
             #endif
-            
+
             #if GOOSEUI_ENABLE_VULKAN
             #endif
-            
+
             default:
                 printf("GooseUI: Backend Not Initilized! \n");
                 break;
@@ -124,7 +134,7 @@ namespace GooseUI::platform // Private
     void win32_window::_gl_createContext()
     {
         HDC hdc = GetDC(this->getHwnd());
-    
+
         PIXELFORMATDESCRIPTOR pfd = {};
         pfd.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
         pfd.nVersion   = 1;
@@ -134,10 +144,10 @@ namespace GooseUI::platform // Private
         pfd.cDepthBits = 24;
         pfd.cStencilBits = 8;
         pfd.iLayerType = PFD_MAIN_PLANE;
-    
+
         int pf = ChoosePixelFormat(hdc, &pfd);
         if(pf == 0 || !SetPixelFormat(hdc, pf, &pfd)) { printf("GooseUI: Failed to set pixel format \n"); }
-    
+
         HGLRC hglrc = wglCreateContext(hdc);
         if(!hglrc || !wglMakeCurrent(hdc, hglrc)) { printf("GooseUI: Failed to create WGL Context \n"); }
     }
@@ -147,11 +157,11 @@ namespace GooseUI::platform // Private
         HDC hdc = GetDC(this->getHwnd());
         HGLRC hglrc = wglGetCurrentContext();
         graphics::gl::glRenderer* glBackend = static_cast<graphics::gl::glRenderer*>(application::getRenderer());
-        
+
         if(!glBackend->hasContext())
         {
             glBackend->setContext(new graphics::gl::glContext{hglrc, hdc});
-        }else 
+        }else
         {
             wglShareLists(glBackend->getContext().hglrc, hglrc);
         }
@@ -255,11 +265,11 @@ namespace GooseUI::platform // Public
 
         if(!_hwnd) { printf("GooseUI: Failed to create Win32 Window \n"); }
         SetWindowLongPtr(_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-        
+
         // Init Backend
         _bgColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-        
-        switch (application::getBackendType()) 
+
+        switch (application::getBackendType())
         {
             #if GOOSEUI_HAS_OPENGL
             case application::backendType::OpenGL:
@@ -268,10 +278,10 @@ namespace GooseUI::platform // Public
                 _gl_shareContext();
                 break;
             #endif
-            
+
             #if GOOSEUI_ENABLE_VULKAN
             #endif
-            
+
             default:
                 printf("GooseUI: Backend Not Initilized! \n");
                 break;
@@ -283,17 +293,17 @@ namespace GooseUI::platform // Public
     win32_window::~win32_window()
     {
         _isRunning = false;
-        switch (application::getBackendType()) 
+        switch (application::getBackendType())
         {
             #if GOOSEUI_HAS_OPENGL
             case application::backendType::OpenGL:
                 _gl_destoryContext();
                 break;
             #endif
-            
+
             #if GOOSEUI_ENABLE_VULKAN
             #endif
-            
+
             default:
                 printf("GooseUI: Backend Not Initilized! \n");
                 break;
@@ -320,7 +330,7 @@ namespace GooseUI::platform // Public
 
         bool hasMenu = GetMenu(_hwnd) != nullptr;
         DWORD WindowStyle = GetWindowLong(_hwnd, GWL_STYLE);
-        
+
         AdjustWindowRect(&rect, WindowStyle, hasMenu);
         GetWindowRect(_hwnd, &currentRect);
 
@@ -332,7 +342,7 @@ namespace GooseUI::platform // Public
         // Disables Maximise button while at it, might change later
         LONG_PTR WindowStyle = GetWindowLongPtr(_hwnd, GWL_STYLE);
         if(isResizeable) { WindowStyle |= WS_THICKFRAME; WindowStyle |= WS_MAXIMIZEBOX; } else { WindowStyle &= ~WS_THICKFRAME; WindowStyle &= ~WS_MAXIMIZEBOX; }
-        
+
         SetWindowLongPtr(_hwnd, GWL_STYLE, WindowStyle);
         SetWindowPos(_hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
@@ -347,7 +357,7 @@ namespace GooseUI::platform // Public
     // Window Visibility
     void win32_window::isAllwaysOnTop(bool isOnTop)
     {
-        if(isOnTop) { SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); } 
+        if(isOnTop) { SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); }
         else { SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); }
     }
 
@@ -367,7 +377,7 @@ namespace GooseUI::platform // Public
     {
         if(!application::getRenderer()) return;
         _startRenderFrame();
-        
+
         for(absractions::iWidget* widget : _widgets)
         {
             if(widget)
@@ -375,7 +385,7 @@ namespace GooseUI::platform // Public
                 widget->draw(); // Huh, guess we dont need ot pass it since it now centralized
             }
         }
-        
+
         _endRenderFrame();
     }
 
@@ -385,7 +395,7 @@ namespace GooseUI::platform // Public
         while(PeekMessage(&msg, getHwnd(), 0, 0, PM_REMOVE))
         {
             if(msg.message == WM_QUIT){ _isRunning = false; break; }
-            
+
             TranslateMessage(&msg);
             DispatchMessage(&msg);
 
@@ -404,7 +414,7 @@ namespace GooseUI::platform // Public
             switch(msg.message)
             {
                 case WM_QUIT: { _isRunning = false; handelWidgets = false; break; }
-                
+
                 case WM_LBUTTONDOWN: { evtData.dataType = event::type::leftMouseDown; break; }
                 case WM_LBUTTONUP: { evtData.dataType = event::type::leftMouseUp; break; }
                 case WM_RBUTTONDOWN: { evtData.dataType = event::type::rightMouseDown; break; }
