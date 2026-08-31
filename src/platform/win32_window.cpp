@@ -1,10 +1,11 @@
 #include "GooseUI/platform/win32_window.h"
+#include "GooseUI/platform/win32_decorations.h"
 #include "GooseUI/context.h"
 
 #include <algorithm>
 
 
-namespace // Local
+namespace GooseUI::platform // Local
 {
     std::wstring convertStringToWideString(const std::string& text)
     {
@@ -23,11 +24,30 @@ namespace GooseUI::platform // Private
         win32_window* window = reinterpret_cast<win32_window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         switch (uMsg) 
         {
+            case WM_NCHITTEST:
+            {
+                if(window && window->_clientDecorations)
+                {
+                    POINT pt = { (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam) };
+                    ScreenToClient(hwnd, &pt);
+
+                    RECT rc;
+                    GetClientRect(hwnd, &rc);
+                    int win_width = rc.right - rc.left;
+                    int win_height = rc.bottom - rc.top;
+
+                    return win32_edgeHitTest(pt.x, pt.y, win_width, win_height);
+                }
+
+                return 0;
+            }
+            
             case WM_CLOSE:
             {
                 PostQuitMessage(0);
                 return 0;
             }
+            
             case WM_DESTROY:
             {
                 if(window)
@@ -40,6 +60,7 @@ namespace GooseUI::platform // Private
 
                 return 0;
             }
+            
             case WM_SIZING:
             {
                 if(window){ window->renderWidgets(); }
@@ -288,7 +309,7 @@ namespace GooseUI::platform // Public
     void win32_window::setBackgroundColor(color color){ _bgColor = color; }
 
     // Titlebar
-    void win32_window::setTitleBarDecorations(const titlebarCreationInfo& info){}
+    void win32_window::setTitleBarDecorations(const titlebarCreationInfo& info){ win32_ModifieDecoration(this, _clientDecorations, info); }
     absractions::iWidget* win32_window::getClientTitleBar(){ if(_clientDecorations){ return _clientDecorations->bar; } return nullptr; }
 
     // Window Size
@@ -363,6 +384,8 @@ namespace GooseUI::platform // Public
         MSG msg;
         while(PeekMessage(&msg, getHwnd(), 0, 0, PM_REMOVE))
         {
+            if(msg.message == WM_QUIT){ _isRunning = false; break; }
+            
             TranslateMessage(&msg);
             DispatchMessage(&msg);
 
@@ -372,6 +395,11 @@ namespace GooseUI::platform // Public
             event::data evtData;
             evtData.mouseX = ((int)(short)LOWORD(msg.lParam));
             evtData.mouseY = ((int)(short)HIWORD(msg.lParam));
+
+            POINT screenPoint = {(LONG)evtData.mouseX, (LONG)evtData.mouseY};
+            ClientToScreen(msg.hwnd, &screenPoint);
+            evtData.mouseRootX = (float)screenPoint.x;
+            evtData.mouseRootY = (float)screenPoint.y;
 
             switch(msg.message)
             {

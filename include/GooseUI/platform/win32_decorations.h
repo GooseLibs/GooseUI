@@ -13,9 +13,10 @@ namespace GooseUI
     namespace platform
     {
         // Decorations
-        void win32_CreateDecoration(windowDecoration type, graphics::titleBarData*& titleBar, absractions::iWindow* window, event::dispatcher& evtDispatcher);
-        void win32_removeDecoration(graphics::titleBarData* titleBar, absractions::iWindow* window);
         void win32_ModifieDecoration(absractions::iWindow *window, graphics::titleBarData *&titleBar, const titlebarCreationInfo& titleBarInfo);
+
+        // Resizeing
+        int win32_edgeHitTest(int x, int y, int win_width, int win_height);
     }
 }
 
