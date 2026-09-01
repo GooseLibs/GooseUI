@@ -102,7 +102,7 @@ namespace GooseUI::platform // Public
             titleBar->closeButton = widgets::createBoxButton(info);
             
             titleBar->closeButton->setColor({ 0.91f, 0.12f, 0.15f, 1.0f });
-            evtDispatcher.add(windowEventID + 1, [xWindow](GooseUI::event::data evt){ xWindow->destroy(); });
+            evtDispatcher.add(windowEventID + 1, [xWindow](GooseUI::event::data evt){ xWindow->close(); });
             titleBar->closeButton->setParent(titleBar->bar);
         }
     }

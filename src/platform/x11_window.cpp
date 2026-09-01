@@ -246,6 +246,7 @@ namespace GooseUI::platform // Public
 
     x11_window::~x11_window()
     {
+        if(!_isRunning && _window == None){ return; }
         _isRunning = false;
         
         switch (application::getBackendType()) 
@@ -264,8 +265,15 @@ namespace GooseUI::platform // Public
                 break;
         }
         
-        XDestroyWindow(_display, _window);
-        XCloseDisplay(_display);
+        if(_display != None)
+        {
+            XDestroyWindow(_display, _window);
+            XFlush(_display);
+            
+            _window = None;
+            XCloseDisplay(_display);
+            _display = nullptr;
+        }
     }
 
     Display* x11_window::getDisplay() { return _display; }
@@ -380,7 +388,7 @@ namespace GooseUI::platform // Public
 
     void x11_window::show() { XMapWindow(_display, _window); XFlush(_display); }
     void x11_window::hide() { XUnmapWindow(_display, _window); XFlush(_display); }
-    void x11_window::destroy() { XDestroyWindow(_display, _window); XFlush(_display); }
+    void x11_window::close() { _isRunning = false; }
 
     // Widget Management
     void x11_window::addWidgetToVector(absractions::iWidget* widget) { _widgets.push_back(widget); }

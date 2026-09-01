@@ -363,7 +363,7 @@ namespace GooseUI::platform // Public
 
     void win32_window::show() { ShowWindow(_hwnd, SW_SHOW); UpdateWindow(_hwnd); }
     void win32_window::hide() { ShowWindow(_hwnd, SW_HIDE); UpdateWindow(_hwnd); }
-    void win32_window::destroy() { DestroyWindow(_hwnd); }
+    void win32_window::close() { _isRunning = false; }
 
     // Widget Management
     void win32_window::addWidgetToVector(absractions::iWidget* widget) { _widgets.push_back(widget); }

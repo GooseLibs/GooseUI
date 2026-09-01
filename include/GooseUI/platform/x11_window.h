@@ -74,7 +74,7 @@ namespace GooseUI
                 
             void show() override;
             void hide() override;
-            void destroy() override;
+            void close() override;
     
             // Widget Management
             void addWidgetToVector(absractions::iWidget* widget) override;

@@ -48,21 +48,23 @@ namespace GooseUI::event // Public
     
     void loop::run()
     {
+        if (_windows.empty()){ return; }
+        
         displayService service = (*_windows.begin())->getDisplayService();
-        bool running = false;
+        absractions::iWindow* mainWindow = _windows.front();
 
         // Begin Loop
         while(true)
         {
-            running = false;
-
+            bool isAlive = true;
             for(size_t i = 0; i < _windows.size(); ++i)
             {
                 absractions::iWindow* window = _windows[i];
 
                 if(!window->isRunning()) 
                 {
-                    window->destroy();
+                    window->close();
+                    delete window;
 
                     _windows[i] = _windows.back();
                     _windows.pop_back();
@@ -71,12 +73,11 @@ namespace GooseUI::event // Public
                     continue; 
                 }
 
-                running = true;
                 window->handelEvents();
+                if(window == mainWindow && !window->isRunning()){ isAlive = false; }
             }
 
-            if(!running) { break; }
-
+            if(!isAlive || _windows.empty()){ break; }
             #if defined(_WIN32)
             
             MSG msg; // Fixes issue when closing window, still need to fix the unfocused window closeing all windows issue though
@@ -108,7 +109,8 @@ namespace GooseUI::event // Public
                     {
                         platform::x11_window* x11Window = dynamic_cast<platform::x11_window*>(window);
                         int xfd = ConnectionNumber(x11Window->getDisplay());
-                        FD_SET(xfd, &in_fds); lastXfd = std::max(lastXfd, xfd);
+                        FD_SET(xfd, &in_fds); 
+                        lastXfd = std::max(lastXfd, xfd);
                     }
 
                     struct timeval timeout { 0, 160000 }; // Temp fix for multi-window, yes I hate it too
