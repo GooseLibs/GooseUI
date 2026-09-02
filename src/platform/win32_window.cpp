@@ -54,7 +54,11 @@ namespace GooseUI::platform // Private
 
             case WM_CLOSE:
             {
-                PostQuitMessage(0);
+                if(wParam == TRUE && window && window->_clientDecorations)
+                {
+                    window->close();
+                }
+                
                 return 0;
             }
 
@@ -63,9 +67,6 @@ namespace GooseUI::platform // Private
                 if(window)
                 {
                     SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
-                    win32_window* localSelf = window;
-                    window = nullptr;
-                    delete localSelf;
                 }
 
                 return 0;
@@ -309,7 +310,13 @@ namespace GooseUI::platform // Public
                 break;
         }
 
-        if(_hwnd) { DestroyWindow(_hwnd); }
+        if(_hwnd)
+        {
+            HWND tHwnd = _hwnd;
+            _hwnd = nullptr;
+            SetWindowLongPtr(tHwnd, GWLP_USERDATA, 0);
+            DestroyWindow(tHwnd);
+        }
     }
 
     HWND win32_window::getHwnd(){ return _hwnd; }
