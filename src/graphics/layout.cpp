@@ -1,7 +1,7 @@
 #include "GooseUI/graphics/layout.h"
 
 
-namespace GooseUI::graphics
+namespace GooseUI::graphics // Public
 {
     void layout::getInitalOffsets(int (&distanceArray)[4], int windowWidth, int windowHeight, int X, int Y, int Width, int Height)
     {

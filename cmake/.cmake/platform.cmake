@@ -9,7 +9,8 @@ if(WIN32)
     LIST(
         APPEND GOOSEUI_SRC
         "src/platform/win32_window.cpp"
-        "src/platform/win32_font.cpp"
+        "src/platform/win32_decorations.cpp"
+        "src/platform/fonts/win32_font.cpp"
     )
 endif()
 
@@ -28,7 +29,7 @@ if(UNIX AND NOT APPLE)
     LIST(APPEND GOOSEUI_LIBRARY Freetype::Freetype)
     LIST(
         APPEND GOOSEUI_SRC
-        "src/platform/freetype_font.cpp"
+        "src/platform/fonts/freetype_font.cpp"
     )
 
     # EGL
@@ -38,14 +39,15 @@ if(UNIX AND NOT APPLE)
     if(GOOSEUI_XORG_SUPPORT)
         MESSAGE(STATUS "[GooseUI] -- Display Service: X11")
 
-        FIND_PACKAGE(X11 REQUIRED)
+        FIND_PACKAGE(X11 REQUIRED COMPONENTS Xext Xcursor)
 
         LIST(APPEND GOOSEUI_INCLUDE "${X11_INCLUDE_DIR}")
-        LIST(APPEND GOOSEUI_LIBRARY "${X11_LIBRARIES}")
+        LIST(APPEND GOOSEUI_LIBRARY "${X11_LIBRARIES}" "${X11_Xcursor_LIB}")
         LIST(APPEND GOOSEUI_BUILD_FLAGS "X11")
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/x11_window.cpp"
+            "src/platform/x11_decorations.cpp"
         )
         
         add_compile_definitions(GOOSEUI_XORG_SUPPORT)
@@ -73,9 +75,9 @@ if(UNIX AND NOT APPLE)
         LIST(APPEND GOOSEUI_BUILD_FLAGS "wayland-client")
         LIST(
             APPEND GOOSEUI_SRC
-            "src/platform/wl_window.cpp"
+            #"src/platform/wl_window.cpp"
             
-            "src/modules/wayland-protocals/xdg-shell.c"
+            #"src/modules/wayland-protocals/xdg-shell.c"
         )
         
         add_compile_definitions(GOOSEUI_WAYLAND_SUPPORT)

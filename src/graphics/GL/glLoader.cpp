@@ -14,54 +14,57 @@
 #endif
 
 
-static void* getProcAddress(const char* name)
+namespace // Local
 {
-    void* result = nullptr;
-    if(lib == nullptr) { return NULL; }
-
-    #if defined(_WIN32)
-        if(wglGetProc) result = wglGetProc(name);
-        if(!result) result = (void*)GetProcAddress(lib, name);
-    #else
-        result = dlsym(lib, name);
-    #endif
-
-    return result;
+    static void* getProcAddress(const char* name)
+    {
+        void* result = nullptr;
+        if(lib == nullptr) { return NULL; }
+    
+        #if defined(_WIN32)
+            if(wglGetProc) result = wglGetProc(name);
+            if(!result) result = (void*)GetProcAddress(lib, name);
+        #else
+            result = dlsym(lib, name);
+        #endif
+    
+        return result;
+    }
+    
+    static int openLib()
+    {
+        #if defined (_WIN32)
+            lib = LoadLibraryA("opengl32.dll");
+            if(!lib) { return 0; }
+    
+            wglGetProc = (void*(*)(const char*))GetProcAddress(lib, "wglGetProcAddress");
+            return 1;
+        #else
+        #if defined(__APPLE__)
+            static const char *glPaths[] = 
+            {
+                "/System/Library/Frameworks/OpenGL.framework/OpenGL",
+                "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
+            };
+        #else
+            static const char *glPaths[] =
+            {
+                "libGL.so.1", 
+                "libGL.so"
+            };
+        #endif
+            for(int i = 0; i < (sizeof(glPaths) / sizeof(glPaths[0])); i++)
+            {
+                lib = dlopen(glPaths[i], RTLD_NOW | RTLD_GLOBAL);
+                if(lib != NULL) { return 1; }
+            }
+        #endif
+    
+        return 0;
+    }
 }
 
-static int openLib()
-{
-    #if defined (_WIN32)
-        lib = LoadLibraryA("opengl32.dll");
-        if(!lib) { return 0; }
-
-        wglGetProc = (void*(*)(const char*))GetProcAddress(lib, "wglGetProcAddress");
-        return 1;
-    #else
-    #if defined(__APPLE__)
-        static const char *glPaths[] = 
-        {
-            "/System/Library/Frameworks/OpenGL.framework/OpenGL",
-            "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
-        };
-    #else
-        static const char *glPaths[] =
-        {
-            "libGL.so.1", 
-            "libGL.so"
-        };
-    #endif
-        for(int i = 0; i < (sizeof(glPaths) / sizeof(glPaths[0])); i++)
-        {
-            lib = dlopen(glPaths[i], RTLD_NOW | RTLD_GLOBAL);
-            if(lib != NULL) { return 1; }
-        }
-    #endif
-
-    return 0;
-}
-
-namespace GooseUI::graphics::gl
+namespace GooseUI::graphics::gl // Public
 {
     PFNGLCREATESHADERPROC glCreateShader = nullptr;
     PFNGLSHADERSOURCEPROC glShaderSource = nullptr;

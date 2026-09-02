@@ -4,53 +4,56 @@
 #include <cstdint>
 
 
-std::u32string U8toU32(const std::string& utf8_string)
+namespace // Local
 {
-    // Only if std::codecvt was not removed ߹𖥦߹
-    std::u32string convertedString;
-    
-    size_t i = 0;
-    while(i < utf8_string.size())
+    std::u32string U8toU32(const std::string& utf8_string)
     {
-        uint32_t codePoint = 0;
-        unsigned char character = utf8_string[i];
-
-        // Yandare Dev Moment - I hate UTF conversion
-        if(character < 0x80)
+        // Only if std::codecvt was not removed ߹𖥦߹
+        std::u32string convertedString;
+        
+        size_t i = 0;
+        while(i < utf8_string.size())
         {
-            codePoint = character;
-            i += 1;
-        }else
-        if((character >> 5) == 0x6)
-        {
-            if(i + 1 >= utf8_string.size()) { convertedString.push_back(U'\uFFFD'); break; }
-            else { codePoint = ((character & 0x1F) << 6) | (utf8_string[i + 1] & 0x3f); }
-            i += 2;
-        }else 
-        if((character >> 4) == 0xE)
-        {
-            if(i + 2 >= utf8_string.size()) { convertedString.push_back(U'\uFFFD'); break; }
-            else { codePoint = ((character & 0x0F) << 12) | ((utf8_string[i + 1] & 0x3F) << 6) | (utf8_string[i + 2] & 0x3F); }
-            i += 3;
-        }else 
-        if((character >> 3) == 0x1E)
-        {
-            if(i + 3 >= utf8_string.size()) { convertedString.push_back(U'\uFFFD'); break; }
-            else { codePoint = ((character & 0x07) << 18) | ((utf8_string[i + 1] & 0x3F) << 12) | ((utf8_string[i + 2] & 0x3F) << 6) | (utf8_string[i + 3] & 0x3F); }
-            i += 4;
-        }else 
-        {
-            convertedString.push_back(U'\uFFFD'); 
-            break;
+            uint32_t codePoint = 0;
+            unsigned char character = utf8_string[i];
+    
+            // Yandare Dev Moment - I hate UTF conversion
+            if(character < 0x80)
+            {
+                codePoint = character;
+                i += 1;
+            }else
+            if((character >> 5) == 0x6)
+            {
+                if(i + 1 >= utf8_string.size()) { convertedString.push_back(U'\uFFFD'); break; }
+                else { codePoint = ((character & 0x1F) << 6) | (utf8_string[i + 1] & 0x3f); }
+                i += 2;
+            }else 
+            if((character >> 4) == 0xE)
+            {
+                if(i + 2 >= utf8_string.size()) { convertedString.push_back(U'\uFFFD'); break; }
+                else { codePoint = ((character & 0x0F) << 12) | ((utf8_string[i + 1] & 0x3F) << 6) | (utf8_string[i + 2] & 0x3F); }
+                i += 3;
+            }else 
+            if((character >> 3) == 0x1E)
+            {
+                if(i + 3 >= utf8_string.size()) { convertedString.push_back(U'\uFFFD'); break; }
+                else { codePoint = ((character & 0x07) << 18) | ((utf8_string[i + 1] & 0x3F) << 12) | ((utf8_string[i + 2] & 0x3F) << 6) | (utf8_string[i + 3] & 0x3F); }
+                i += 4;
+            }else 
+            {
+                convertedString.push_back(U'\uFFFD'); 
+                break;
+            }
+    
+            convertedString.push_back(static_cast<char32_t>(codePoint));
         }
-
-        convertedString.push_back(static_cast<char32_t>(codePoint));
+    
+        return convertedString;
     }
-
-    return convertedString;
 }
 
-namespace GooseUI::font 
+namespace GooseUI::font // Public
 {
     void layout::setText(const std::string& text, absractions::iFont* font)
     {

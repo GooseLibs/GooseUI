@@ -4,7 +4,7 @@
 #include <cstring>
 
 
-namespace GooseUI::font
+namespace GooseUI::font // Public
 {
     atlas::atlas(int width, int height, int channels)
         : _width(width), _height(height), _colorChannel(channels), _x(0), _y(0), _rowHeight(0), _pixels(width * height * channels, 0), _id(0) {}

@@ -1,13 +1,13 @@
-#include "GooseUI/platform/freetype_font.h"
+#include "GooseUI/platform/fonts/freetype_font.h"
 
-#include "GooseUI/context.h"
+#include "GooseUI/font/fontManager.h"
 
 
 namespace GooseUI::platform // Private
 {
     font::glyph freetype_font::_getGlyphBitmap(uint16_t index, float scale, const FT_GlyphSlot& glyphMetrics, const FT_Size_Metrics& fontMetrics, const font::cfg::bitmap& config)
     {
-        FT_Library pFactory = reinterpret_cast<FT_Library>(application::getFontFactory());
+        FT_Library pFactory = reinterpret_cast<FT_Library>(font::manager::instance().getFontFactory());
         font::glyph t_glyph{};
 
         // Rasterize
@@ -60,7 +60,7 @@ namespace GooseUI::platform // Private
 
     font::glyph freetype_font::_getGlyphSDF(uint16_t index, float scale, const FT_GlyphSlot& glyphMetrics, const FT_Size_Metrics& fontMetrics, const font::cfg::SDF& config)
     {
-        FT_Library pFactory = reinterpret_cast<FT_Library>(application::getFontFactory());
+        FT_Library pFactory = reinterpret_cast<FT_Library>(font::manager::instance().getFontFactory());
         font::glyph t_glyph{};
 
         // Ima get bitmap working before SDF
@@ -72,19 +72,19 @@ namespace GooseUI::platform // Public
 {
     freetype_font::freetype_font()
     {
-        if(application::getFontFactory() != nullptr){ return; }
+        if(font::manager::instance().getFontFactory() != nullptr){ return; }
         FT_Library library;
 
         if(FT_Init_FreeType(&library))
             { printf("GooseUI: Faild to init FreeType \n"); }
 
-        application::setFontFactory(reinterpret_cast<void*>(library));
+        font::manager::instance().setFontFactory(reinterpret_cast<void*>(library));
     }
 
     bool freetype_font::load(const std::string &PathToFont, const font::fontData &fontData)
     {
         _initilized = false;
-        FT_Library pFactory = reinterpret_cast<FT_Library>(application::getFontFactory());
+        FT_Library pFactory = reinterpret_cast<FT_Library>(font::manager::instance().getFontFactory());
         if(pFactory == nullptr){ printf("GooseUI: Faild to get FT_Library \n"); return false; }
 
         _fontData = fontData;

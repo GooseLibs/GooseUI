@@ -8,6 +8,20 @@
 
 namespace GooseUI
 {
+    struct boxButtonCreationInfo
+    {
+        int eventID;
+        event::dispatcher* evtDispatcher;
+
+        int alignment;
+        int X = 0;
+        int Y = 0;
+
+        widgetScaleing scaleing;
+        int width;
+        int height;
+    };
+    
     namespace widgets
     {
         class boxButton : public absractions::iWidget
@@ -21,7 +35,7 @@ namespace GooseUI
             bool _isPressed;
 
             public:
-            boxButton(int eventID, event::dispatcher& evtDispatcher, widgetScaleing widgetScaleing, int widgetAlignment, int x, int y, int width, int height);
+            boxButton(const boxButtonCreationInfo& info);
             ~boxButton();
 
             void setOutlineSize(int size);
@@ -32,14 +46,7 @@ namespace GooseUI
             void pollEvent(event::data evtData) override;
         };
 
-        boxButton* createBoxButton(
-            int evtID,
-            event::dispatcher& evtDispatcher,
-            widgetScaleing widgetScaleing, 
-            int widgetAlignment, 
-            int x, int y, 
-            int width, int height
-        );
+        boxButton* createBoxButton(const boxButtonCreationInfo& info);
     }
 }
 
