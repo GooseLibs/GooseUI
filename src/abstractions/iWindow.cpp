@@ -11,7 +11,7 @@
 #elif defined(__unix__) && !defined(__APPLE__)
 
     #if defined(GOOSEUI_WAYLAND_SUPPORT)
-        //#include "GooseUI/platform/wl_window.h"
+        #include "GooseUI/platform/wl_window.h"
     #endif
     
     #if defined(GOOSEUI_XORG_SUPPORT)
@@ -24,8 +24,7 @@
         const char* xdgSession = std::getenv("XDG_SESSION_TYPE");
         const char* wlDisplay = std::getenv("WAYLAND_DISPLAY");
 
-        //if(wlDisplay !=nullptr || xdgSession && std::string(xdgSession) == "wayland")
-            //    {return new GooseUI::platform::wl_window(title, width, height, posistion);}
+        if(wlDisplay !=nullptr || xdgSession && std::string(xdgSession) == "wayland"){ return new GooseUI::platform::wl_window(info); }
         #endif
 
         #if defined(GOOSEUI_XORG_SUPPORT)

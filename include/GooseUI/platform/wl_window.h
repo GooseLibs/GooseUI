@@ -19,6 +19,13 @@ namespace GooseUI
     {
         class wl_window : public absractions::iWindow
         {
+            struct wl_windowState
+            {
+                int width;
+                int height;
+                bool needUpdate;
+            };
+            
             // Static classes - Used by all the windows
             static wl_display* _display;
             static wl_registry* _registry;
@@ -37,6 +44,7 @@ namespace GooseUI
             xdg_surface* _xdg_surface = nullptr;
             xdg_toplevel* _xdg_toplevel = nullptr;
 
+            wl_windowState _windowState;
             void* _windowCtx;
             
             void _gl_createContext();

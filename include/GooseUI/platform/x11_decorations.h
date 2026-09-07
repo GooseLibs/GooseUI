@@ -1,5 +1,5 @@
-#ifndef _GOOSEUI_X11_STATIC_H_
-#define _GOOSEUI_X11_STATIC_H_
+#ifndef _GOOSEUI_X11_DECORATIONS_H_
+#define _GOOSEUI_X11_DECORATIONS_H_
 
 #include "GooseUI/types.h"
 #include "GooseUI/graphics/titleBar.h"
@@ -7,9 +7,6 @@
 
 #include <X11/Xlib.h>
 #include <string>
-
-#define X11_BORDER_PADDING 3
-
 
 namespace GooseUI 
 {
@@ -27,4 +24,4 @@ namespace GooseUI
     }
 }
 
-#endif /*_GOOSEUI_X11_STATIC_H_*/
+#endif /*_GOOSEUI_X11_DECORATIONS_H_*/

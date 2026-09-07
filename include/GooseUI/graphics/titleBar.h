@@ -6,6 +6,8 @@
 
 #include "GooseUI/events/eventDispatcher.h"
 
+#define DEF_GSA_WINDOW_BORDER_PADDING 3
+#define DEF_GSA_WINDOW_TITLEBAR_HEIGHT 25
 
 namespace GooseUI
 {

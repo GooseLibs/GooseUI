@@ -1,8 +1,6 @@
 #include "GooseUI/platform/win32_decorations.h"
 #include "GooseUI/platform/win32_window.h"
 
-#define WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT 25
-
 
 namespace GooseUI::platform // Local
 {
@@ -41,7 +39,7 @@ namespace GooseUI::platform // Local
         titleBar->evtDispatcher = &evtDispatcher;
         uintptr_t windowEventID = reinterpret_cast<uintptr_t>(wWindow->getHwnd()) * 2;
 
-        titleBar->bar = new widgets::titleBar(windowEventID, evtDispatcher, SCALE_HORIZONTAL, ALIGN_LEFT | ALIGN_RIGHT | ALIGN_TOP, 0, 0, wWindow->getWidth(), WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT);
+        titleBar->bar = new widgets::titleBar(windowEventID, evtDispatcher, SCALE_HORIZONTAL, ALIGN_LEFT | ALIGN_RIGHT | ALIGN_TOP, 0, 0, wWindow->getWidth(), DEF_GSA_WINDOW_TITLEBAR_HEIGHT);
         evtDispatcher.add(windowEventID, [wWindow](GooseUI::event::data evt){
             ::ReleaseCapture();
             ::SendMessage(wWindow->getHwnd(), WM_NCLBUTTONDOWN, HTCAPTION, 0);
@@ -55,10 +53,10 @@ namespace GooseUI::platform // Local
             info.evtDispatcher = &evtDispatcher;
             info.scaleing = SCALE_NONE;
             info.alignment = ALIGN_RIGHT | ALIGN_TOP | ALIGN_BOTTOM;
-            info.X = titleBar->bar->getWidth() - WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT;
-            info.Y = titleBar->bar->getHeight() - WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT + 2;
-            info.width = WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT - 6;
-            info.height = WIN32_DEFAULT_CLIENT_DECORATION_HEIGHT - 6;
+            info.X = titleBar->bar->getWidth() - DEF_GSA_WINDOW_TITLEBAR_HEIGHT;
+            info.Y = titleBar->bar->getHeight() - DEF_GSA_WINDOW_TITLEBAR_HEIGHT + 2;
+            info.width = DEF_GSA_WINDOW_TITLEBAR_HEIGHT - 6;
+            info.height = DEF_GSA_WINDOW_TITLEBAR_HEIGHT - 6;
             titleBar->closeButton = widgets::createBoxButton(info);
 
             titleBar->closeButton->setColor({ 0.91f, 0.12f, 0.15f, 1.0f });
@@ -104,9 +102,6 @@ namespace GooseUI::platform // Public
     void win32_ModifieDecoration(absractions::iWindow *window, graphics::titleBarData *&titleBar, const titlebarCreationInfo &titleBarInfo)
     {
         platform::win32_window* wWindow = static_cast<platform::win32_window*>(window);
-
-        LONG_PTR style = GetWindowLongPtr(wWindow->getHwnd(), GWL_STYLE);
-        DWORD flags = WS_CAPTION | WS_THICKFRAME | WS_DLGFRAME;
 
         if(!titleBarInfo.visible)
         {

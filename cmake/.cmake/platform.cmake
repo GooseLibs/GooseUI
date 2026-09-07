@@ -76,6 +76,8 @@ if(UNIX AND NOT APPLE)
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/wl_window.cpp"
+            "src/platform/wl_decorations.cpp"
+            
             "src/modules/wayland-protocols/xdg-shell.c"
         )
         

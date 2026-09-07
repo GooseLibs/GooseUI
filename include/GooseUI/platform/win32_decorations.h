@@ -5,9 +5,6 @@
 #include "GooseUI/graphics/titleBar.h"
 #include "GooseUI/abstractions/iWindow.h"
 
-#define WIN32_BORDER_PADDING 3
-
-
 namespace GooseUI 
 {
     namespace platform

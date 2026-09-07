@@ -1,5 +1,5 @@
-#ifndef _GOOSEUI_WIN32_WINDOW_H_
-#define _GOOSEUI_WIN32_WINDOW_H_
+#ifndef _GOOSEUI_WIN32_DECORATIONS_H_
+#define _GOOSEUI_WIN32_DECORATIONS_H_
 
 #include "GooseUI/types.h"
 #include "GooseUI/context.h"
@@ -76,4 +76,4 @@ namespace GooseUI
     }
 }
 
-#endif /*_GOOSEUI_WIN32_WINDOW_H_*/
+#endif /*_GOOSEUI_WIN32_DECORATIONS_H_*/

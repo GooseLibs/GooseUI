@@ -4,14 +4,12 @@
 #include <X11/Xatom.h>
 #include <X11/Xcursor/Xcursor.h>
 
-#define X11_DEFAULT_CLIENT_DECORATION_HEIGHT 25
-
 
 namespace GooseUI::platform // Private
 {
     struct WM_Hints { unsigned long flags; unsigned long functions; unsigned long decorations; long input_mode; unsigned long status; };
     
-    bool _hasDecorations(Display* display, Window window)
+    bool _hasServerDecorations(Display* display, Window window)
     {
         Atom motifHintsAtom = XInternAtom(display, "_MOTIF_WM_HINTS", True);
         if(motifHintsAtom == None){ return true; }
@@ -59,7 +57,7 @@ namespace GooseUI::platform // Public
         hints.decorations = 0L;
 
         Atom extentsAtom = XInternAtom(xWindow->getDisplay(), "_GTK_FRAME_EXTENTS", False);
-        long extents[4] = { X11_BORDER_PADDING, X11_BORDER_PADDING, X11_BORDER_PADDING, X11_BORDER_PADDING };
+        long extents[4] = { DEF_GSA_WINDOW_BORDER_PADDING, DEF_GSA_WINDOW_BORDER_PADDING, DEF_GSA_WINDOW_BORDER_PADDING, DEF_GSA_WINDOW_BORDER_PADDING };
         XChangeProperty(xWindow->getDisplay(), xWindow->getWindow(), motifHintsAtom, motifHintsAtom, 32, PropModeReplace, (unsigned char*)&hints, 5);
         XChangeProperty(xWindow->getDisplay(), xWindow->getWindow(), extentsAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)extents, 4);
         
@@ -69,7 +67,7 @@ namespace GooseUI::platform // Public
 
         int windowEventID = static_cast<int>(xWindow->getWindow()) * 2;
         
-        titleBar->bar = new widgets::titleBar(windowEventID, evtDispatcher, SCALE_HORIZONTAL, ALIGN_LEFT | ALIGN_RIGHT | ALIGN_TOP, 0, 0, xWindow->getWidth(), X11_DEFAULT_CLIENT_DECORATION_HEIGHT);
+        titleBar->bar = new widgets::titleBar(windowEventID, evtDispatcher, SCALE_HORIZONTAL, ALIGN_LEFT | ALIGN_RIGHT | ALIGN_TOP, 0, 0, xWindow->getWidth(), DEF_GSA_WINDOW_TITLEBAR_HEIGHT);
         evtDispatcher.add(windowEventID, [xWindow](GooseUI::event::data evt){ 
             Atom netWmMoveResize = XInternAtom(xWindow->getDisplay(), "_NET_WM_MOVERESIZE", False);
 
@@ -95,10 +93,10 @@ namespace GooseUI::platform // Public
             info.evtDispatcher = &evtDispatcher;
             info.scaleing = SCALE_NONE; 
             info.alignment = ALIGN_RIGHT | ALIGN_TOP | ALIGN_BOTTOM;
-            info.X = titleBar->bar->getWidth() - X11_DEFAULT_CLIENT_DECORATION_HEIGHT;
-            info.Y = titleBar->bar->getHeight() - X11_DEFAULT_CLIENT_DECORATION_HEIGHT + 2;
-            info.width = X11_DEFAULT_CLIENT_DECORATION_HEIGHT - 6;
-            info.height = X11_DEFAULT_CLIENT_DECORATION_HEIGHT - 6;
+            info.X = titleBar->bar->getWidth() - DEF_GSA_WINDOW_TITLEBAR_HEIGHT;
+            info.Y = titleBar->bar->getHeight() - DEF_GSA_WINDOW_TITLEBAR_HEIGHT + 2;
+            info.width = DEF_GSA_WINDOW_TITLEBAR_HEIGHT - 6;
+            info.height = DEF_GSA_WINDOW_TITLEBAR_HEIGHT - 6;
             titleBar->closeButton = widgets::createBoxButton(info);
             
             titleBar->closeButton->setColor({ 0.91f, 0.12f, 0.15f, 1.0f });
@@ -142,20 +140,20 @@ namespace GooseUI::platform // Public
         
         if(!titleBarInfo.visible)
         {
-            if(_hasDecorations(xWindow->getDisplay(), xWindow->getWindow())){ x11_removeDecoration(titleBar, window); }
+            if(_hasServerDecorations(xWindow->getDisplay(), xWindow->getWindow())){ x11_removeDecoration(titleBar, window); }
             return;
         }
 
-        if(!_hasDecorations(xWindow->getDisplay(), xWindow->getWindow())){ x11_CreateDecoration(titleBarInfo.type, titleBar, window, *titleBarInfo.evtDispatcher); }
+        if(!_hasServerDecorations(xWindow->getDisplay(), xWindow->getWindow())){ x11_CreateDecoration(titleBarInfo.type, titleBar, window, *titleBarInfo.evtDispatcher); }
     }
 
     // Resizeing
     int x11_edgeHitTest(int x, int y, int win_width, int win_height)
     {
-        bool top    = y <= X11_BORDER_PADDING + (X11_BORDER_PADDING / 2);
-        bool bottom = y >= (win_height - X11_BORDER_PADDING);
-        bool left   = x <= X11_BORDER_PADDING + X11_BORDER_PADDING;
-        bool right  = x >= (win_width - X11_BORDER_PADDING);
+        bool top    = y <= DEF_GSA_WINDOW_BORDER_PADDING + (DEF_GSA_WINDOW_BORDER_PADDING / 2);
+        bool bottom = y >= (win_height - DEF_GSA_WINDOW_BORDER_PADDING);
+        bool left   = x <= DEF_GSA_WINDOW_BORDER_PADDING + DEF_GSA_WINDOW_BORDER_PADDING;
+        bool right  = x >= (win_width - DEF_GSA_WINDOW_BORDER_PADDING);
     
         if (top && left)     return 0; // Top-Left
         if (top && right)    return 2; // Top-Right
