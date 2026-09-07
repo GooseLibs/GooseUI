@@ -10,7 +10,9 @@
 #include "GooseUI/abstractions/iRenderer.h"
 #include "GooseUI/abstractions/iWidget.h"
 
-#include <GooseUI/modules/wayland-protocols/xdg-shell.h>
+#include "GooseUI/modules/wayland-protocols/xdg-shell.h"
+#include "GooseUI/modules/wayland-protocols/xdg-decoration.h"
+
 #include <wayland-client.h>
 
 namespace GooseUI
@@ -31,6 +33,7 @@ namespace GooseUI
             static wl_registry* _registry;
             static wl_compositor* _compositor;
             static xdg_wm_base* _xdg_wm_base;
+            static zxdg_decoration_manager_v1* _decoration_manager;
 
             static void _registry_handle(void* data, wl_registry* reg, uint32_t id, const char* interface, uint32_t version);
             static void _registry_remover(void* data, wl_registry* reg, uint32_t id);
@@ -43,6 +46,7 @@ namespace GooseUI
             wl_surface* _surface = nullptr;
             xdg_surface* _xdg_surface = nullptr;
             xdg_toplevel* _xdg_toplevel = nullptr;
+            zxdg_toplevel_decoration_v1* _xdg_toplevel_decorations = nullptr;
 
             wl_windowState _windowState;
             void* _windowCtx;

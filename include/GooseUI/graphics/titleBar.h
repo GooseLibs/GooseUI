@@ -29,6 +29,14 @@ namespace GooseUI
                 delete bar;
             }
         };
+
+        class titleBar
+        {
+            public:
+            static void createDefaultDecorations(windowDecoration type, titleBarData *&titleBar, absractions::iWindow *window, int windowEventID, event::dispatcher &evtDispatcher);
+            static void removeDefaultDecorations(titleBarData *titleBar, int windowEventID, absractions::iWindow *window);
+            static void modifieDefaultDecorations();
+        };
     }
 }
 

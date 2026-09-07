@@ -10,5 +10,6 @@ LIST(
     "src/font/fontManager.cpp"
     "src/graphics/text.cpp"
     "src/graphics/layout.cpp"
+    "src/graphics/titleBar.cpp"
     "src/context.cpp"
 )

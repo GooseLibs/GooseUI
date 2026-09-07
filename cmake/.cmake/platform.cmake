@@ -47,7 +47,6 @@ if(UNIX AND NOT APPLE)
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/x11_window.cpp"
-            "src/platform/x11_decorations.cpp"
         )
         
         add_compile_definitions(GOOSEUI_XORG_SUPPORT)
@@ -76,9 +75,9 @@ if(UNIX AND NOT APPLE)
         LIST(
             APPEND GOOSEUI_SRC
             "src/platform/wl_window.cpp"
-            "src/platform/wl_decorations.cpp"
             
             "src/modules/wayland-protocols/xdg-shell.c"
+            "src/modules/wayland-protocols/xdg-decoration.c"
         )
         
         add_compile_definitions(GOOSEUI_WAYLAND_SUPPORT)

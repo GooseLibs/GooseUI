@@ -1,9 +1,15 @@
 #include "GooseUI/platform/wl_window.h"
-#include "GooseUI/platform/wl_decorations.h"
+
+#include "GooseUI/types.h"
+#include "GooseUI/graphics/titleBar.h"
 
 #include <algorithm>
 #include <cstring>
 
+
+namespace GooseUI::platform // Local
+{
+}
 
 namespace GooseUI::platform // Private
 {
@@ -12,6 +18,7 @@ namespace GooseUI::platform // Private
     wl_registry* wl_window::_registry = nullptr; 
     wl_compositor* wl_window::_compositor = nullptr;
     xdg_wm_base* wl_window::_xdg_wm_base = nullptr;
+    zxdg_decoration_manager_v1* wl_window::_decoration_manager = nullptr;
 
     void wl_window::_registry_handle(void* data, wl_registry* reg, uint32_t id, const char* interface, uint32_t version)
     {
@@ -24,6 +31,9 @@ namespace GooseUI::platform // Private
 
             static const xdg_wm_base_listener wm_listener = {[](void*, xdg_wm_base* wm, uint32_t s){ xdg_wm_base_pong(wm, s); }};
             xdg_wm_base_add_listener(wl_window::_xdg_wm_base, &wm_listener, nullptr);
+        }else if(std::strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
+        {
+            _decoration_manager = (zxdg_decoration_manager_v1*)wl_registry_bind(reg, id, &zxdg_decoration_manager_v1_interface, 1);
         }
     }
     
@@ -265,7 +275,10 @@ namespace GooseUI::platform // public
     void wl_window::setBackgroundColor(color color){ _bgColor = color; }
     
     // Titlebar
-    void wl_window::setTitleBarDecorations(const titlebarCreationInfo& info){ wl_ModifieDecoration(this, _clientDecorations, info); }
+    void wl_window::setTitleBarDecorations(const titlebarCreationInfo& info)
+    { 
+    }
+    
     absractions::iWidget* wl_window::getClientTitleBar() { if(_clientDecorations){ return _clientDecorations->bar; } return nullptr; }
     
     // Window Size
