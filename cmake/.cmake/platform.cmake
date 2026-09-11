@@ -9,7 +9,6 @@ if(WIN32)
     LIST(
         APPEND GOOSEUI_SRC
         "src/platform/win32_window.cpp"
-        "src/platform/win32_decorations.cpp"
         "src/platform/fonts/win32_font.cpp"
     )
 endif()

@@ -1,5 +1,4 @@
 #include "GooseUI/platform/win32_window.h"
-#include "GooseUI/platform/win32_decorations.h"
 #include "GooseUI/context.h"
 
 #include <algorithm>
@@ -7,6 +6,14 @@
 
 namespace GooseUI::platform // Local
 {
+    bool hasServerSideDecorations(HWND &hwnd)
+    {
+        LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
+        DWORD flags = WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+
+        return (style & flags) != 0;
+    }
+    
     std::wstring convertStringToWideString(const std::string& text)
     {
         int wstring_length = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), text.length(), NULL, 0);
@@ -14,6 +21,25 @@ namespace GooseUI::platform // Local
         MultiByteToWideChar(CP_UTF8, 0, text.c_str(), text.length(), &t_wideStringTo[0], wstring_length);
 
         return t_wideStringTo;
+    }
+
+    int isCursorOnWindowEdge(int x, int y, int win_width, int win_height)
+    {
+        bool top    = y <= DEF_GSA_WINDOW_BORDER_PADDING + (DEF_GSA_WINDOW_BORDER_PADDING / 2);
+        bool bottom = y >= (win_height - DEF_GSA_WINDOW_BORDER_PADDING);
+        bool left   = x <= DEF_GSA_WINDOW_BORDER_PADDING + DEF_GSA_WINDOW_BORDER_PADDING;
+        bool right  = x >= (win_width - DEF_GSA_WINDOW_BORDER_PADDING);
+
+        if (top && left)     return HTTOPLEFT; // Top-Left
+        if (top && right)    return HTTOPRIGHT; // Top-Right
+        if (bottom && right) return HTBOTTOMRIGHT; // Bottom-Right
+        if (bottom && left)  return HTBOTTOMLEFT; // Bottom-Left
+        if (top)             return HTTOP; // Top
+        if (right)           return HTRIGHT; // Right
+        if (bottom)          return HTBOTTOM; // Bottom
+        if (left)            return HTLEFT; // Left
+
+        return HTCLIENT;
     }
 }
 
@@ -36,7 +62,7 @@ namespace GooseUI::platform // Private
                     int win_width = rc.right - rc.left;
                     int win_height = rc.bottom - rc.top;
 
-                    return win32_edgeHitTest(pt.x, pt.y, win_width, win_height);
+                    return isCursorOnWindowEdge(pt.x, pt.y, win_width, win_height);
                 }
 
                 return 0;
@@ -54,7 +80,7 @@ namespace GooseUI::platform // Private
 
             case WM_CLOSE:
             {
-                if(wParam == TRUE && window && window->_clientDecorations)
+                if(window)
                 {
                     window->close();
                 }
@@ -253,7 +279,7 @@ namespace GooseUI::platform // Public
             WS_EX_OVERLAPPEDWINDOW,
             L"GooseUI_Window",
             L"GooseUI Window",
-            CW_USEDEFAULT,
+            dwStyle,
             posX,
             posY,
             info.width,
@@ -326,7 +352,63 @@ namespace GooseUI::platform // Public
     void win32_window::setBackgroundColor(color color){ _bgColor = color; }
 
     // Titlebar
-    void win32_window::setTitleBarDecorations(const titlebarCreationInfo& info){ win32_ModifieDecoration(this, _clientDecorations, info); }
+    void win32_window::setTitleBarDecorations(const titlebarCreationInfo& info)
+    {
+        uintptr_t windowEventID = reinterpret_cast<uintptr_t>(_hwnd) * 2;
+
+        // Remove Decorations
+        if(!info.visible)
+        {
+            if(_clientDecorations != nullptr)
+            {
+                graphics::titleBar::removeDefaultDecorations(_clientDecorations, windowEventID, this);
+                SetWindowPos(_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            }
+
+            if(hasServerSideDecorations(_hwnd))
+            {
+                LONG_PTR style = GetWindowLongPtr(_hwnd, GWL_STYLE);
+                style |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+                
+                SetWindowLongPtr(_hwnd, GWL_STYLE, style);
+                SetWindowPos(_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            }
+
+            return;
+        }
+
+        // Server Side Decorations
+        LONG_PTR style = GetWindowLongPtr(_hwnd, GWL_STYLE);
+        if(info.type == windowDecoration::ServerSide)
+        {
+            style &= ~WS_POPUP;
+            style |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+            SetWindowLongPtr(_hwnd, GWL_STYLE, style);
+            SetWindowPos(_hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+            return;
+        }
+
+        // Client Side Decorations
+        style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+        style |= WS_POPUP;
+
+        SetWindowLongPtr(_hwnd, GWL_STYLE, style);
+        SetWindowPos(_hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+        event::dispatcher &deRefDispatcher = *info.evtDispatcher;
+        graphics::titleBar::createDefaultDecorations(info.type, _clientDecorations, this, windowEventID, deRefDispatcher);
+
+        // Header
+        deRefDispatcher.add(windowEventID, [this](GooseUI::event::data evt){
+            ::ReleaseCapture();
+            ::SendMessage(_hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        });
+
+        // Close Button
+        deRefDispatcher.add(windowEventID + 1, [this](GooseUI::event::data evt){ close(); });
+    }
+    
     absractions::iWidget* win32_window::getClientTitleBar(){ if(_clientDecorations){ return _clientDecorations->bar; } return nullptr; }
 
     // Window Size

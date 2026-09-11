@@ -9,7 +9,7 @@ namespace GooseUI::platform // Local
 {
     struct WM_Hints { unsigned long flags; unsigned long functions; unsigned long decorations; long input_mode; unsigned long status; };
     
-    bool hasServerSideDecorations(Display* display, Window window)
+    bool hasServerSideDecorations(Display* display, Window &window)
     {   
         Atom motifHintsAtom = XInternAtom(display, "_MOTIF_WM_HINTS", True);
         if(motifHintsAtom == None){ return true; }

@@ -36,7 +36,7 @@ namespace GooseUI
             protected:
             std::vector<iWidget*> _widgets;
 
-            graphics::titleBarData* _clientDecorations;
+            graphics::titleBarData* _clientDecorations = nullptr;
             
             color _bgColor;
             bool _isRunning;

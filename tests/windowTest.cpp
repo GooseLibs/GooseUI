@@ -46,7 +46,7 @@ int main()
         GooseUI::titlebarCreationInfo window2_titleBarInfo {};
         window2_titleBarInfo.evtDispatcher = &_dispatcher;
         window2_titleBarInfo.windowTitle = "Window Two";
-        window2_titleBarInfo.type = GooseUI::windowDecoration::ClientSide;
+        window2_titleBarInfo.type = GooseUI::windowDecoration::ServerSide;
 
         _window2 = GooseUI::absractions::createWindow(window2_info); 
         _window2->setTitleBarDecorations(window2_titleBarInfo);
