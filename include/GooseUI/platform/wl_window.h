@@ -32,6 +32,10 @@ namespace GooseUI
             static wl_display* _display;
             static wl_registry* _registry;
             static wl_compositor* _compositor;
+            static wl_seat* _seat;
+
+            static uint32_t _lastPointerSerial;
+            
             static xdg_wm_base* _xdg_wm_base;
             static zxdg_decoration_manager_v1* _decoration_manager;
 
@@ -44,10 +48,12 @@ namespace GooseUI
 
             // Per Instance
             wl_surface* _surface = nullptr;
+            
             xdg_surface* _xdg_surface = nullptr;
             xdg_toplevel* _xdg_toplevel = nullptr;
             zxdg_toplevel_decoration_v1* _xdg_toplevel_decorations = nullptr;
-
+            uint32_t _decorationMode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
+            
             wl_windowState _windowState;
             void* _windowCtx;
             

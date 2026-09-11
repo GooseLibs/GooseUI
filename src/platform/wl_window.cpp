@@ -9,6 +9,11 @@
 
 namespace GooseUI::platform // Local
 {
+    bool hasServerSideDecorations(zxdg_decoration_manager_v1* decorationManager, zxdg_toplevel_decoration_v1* xdg_toplevel_decorations, uint32_t &decorationMode)
+    {
+        if(decorationManager == nullptr || xdg_toplevel_decorations == nullptr){ return false; }
+        return decorationMode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
+    }
 }
 
 namespace GooseUI::platform // Private
@@ -17,6 +22,10 @@ namespace GooseUI::platform // Private
     wl_display* wl_window::_display = nullptr;
     wl_registry* wl_window::_registry = nullptr; 
     wl_compositor* wl_window::_compositor = nullptr;
+    wl_seat* wl_window::_seat = nullptr;
+
+    uint32_t wl_window::_lastPointerSerial = 0;
+    
     xdg_wm_base* wl_window::_xdg_wm_base = nullptr;
     zxdg_decoration_manager_v1* wl_window::_decoration_manager = nullptr;
 
@@ -34,6 +43,9 @@ namespace GooseUI::platform // Private
         }else if(std::strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
         {
             _decoration_manager = (zxdg_decoration_manager_v1*)wl_registry_bind(reg, id, &zxdg_decoration_manager_v1_interface, 1);
+        }else if(strcmp(interface, wl_seat_interface.name) == 0)
+        {
+            _seat = (wl_seat*)wl_registry_bind(reg, id, &wl_seat_interface, std::min(version, 4u));
         }
     }
     
@@ -276,7 +288,53 @@ namespace GooseUI::platform // public
     
     // Titlebar
     void wl_window::setTitleBarDecorations(const titlebarCreationInfo& info)
-    { 
+    {
+        int windowEventID = static_cast<int>(reinterpret_cast<intptr_t>(_xdg_toplevel)) * 2;
+
+        // Remove Decorations
+        if(!info.visible)
+        {
+            if(_clientDecorations != nullptr)
+            { 
+                graphics::titleBar::removeDefaultDecorations(_clientDecorations, windowEventID, this); 
+                if(_xdg_surface){ xdg_surface_set_window_geometry(_xdg_surface, 0, 0, _windowState.width, _windowState.height); }
+            }
+
+            if(hasServerSideDecorations(_decoration_manager, _xdg_toplevel_decorations, _decorationMode))
+            {
+                zxdg_toplevel_decoration_v1_unset_mode(_xdg_toplevel_decorations);
+            }
+
+            return;
+        }
+
+        // Server Side Decorations
+        if(_xdg_toplevel_decorations == nullptr && _decoration_manager != nullptr){ _xdg_toplevel_decorations = zxdg_decoration_manager_v1_get_toplevel_decoration(_decoration_manager, _xdg_toplevel); }
+        if(info.type == windowDecoration::ServerSide)
+        {
+            if(_xdg_toplevel_decorations)
+            {
+                zxdg_toplevel_decoration_v1_set_mode(_xdg_toplevel_decorations, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
+                _decorationMode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
+                return;
+            }
+        }
+
+        // Client Side Decorations
+        if(_xdg_toplevel_decorations){ zxdg_toplevel_decoration_v1_set_mode(_xdg_toplevel_decorations, ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE); }
+        if(_xdg_surface){ xdg_surface_set_window_geometry(_xdg_surface, 0, DEF_GSA_WINDOW_BORDER_PADDING, _windowState.width, _windowState.height - DEF_GSA_WINDOW_BORDER_PADDING); }
+        _decorationMode =  ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
+
+        event::dispatcher &deRefDispatcher = *info.evtDispatcher;
+        graphics::titleBar::createDefaultDecorations(info.type, _clientDecorations, this, windowEventID, deRefDispatcher);
+
+        // Header
+        deRefDispatcher.add(windowEventID, [this](GooseUI::event::data evt){
+            if(_xdg_toplevel && _seat){ xdg_toplevel_move(_xdg_toplevel, _seat, _lastPointerSerial); }
+        });
+
+        // Close Button
+        deRefDispatcher.add(windowEventID + 1, [this](GooseUI::event::data evt){ close(); });
     }
     
     absractions::iWidget* wl_window::getClientTitleBar() { if(_clientDecorations){ return _clientDecorations->bar; } return nullptr; }
