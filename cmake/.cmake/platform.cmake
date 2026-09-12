@@ -77,6 +77,8 @@ if(UNIX AND NOT APPLE)
             
             "src/modules/wayland-protocols/xdg-shell.c"
             "src/modules/wayland-protocols/xdg-decoration.c"
+            "src/modules/wayland-protocols/cursor-shape.c"
+            "src/modules/wayland-protocols/tablet.c"
         )
         
         add_compile_definitions(GOOSEUI_WAYLAND_SUPPORT)

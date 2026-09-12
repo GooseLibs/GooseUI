@@ -3,9 +3,15 @@
 #include "GooseUI/types.h"
 #include "GooseUI/graphics/titleBar.h"
 
+#include <linux/input-event-codes.h>
+#include <poll.h>
+
 #include <algorithm>
 #include <cstring>
 
+// This is litteral Hell
+// I hope to never touch this peice of sh*t code again
+// Who ever designed the wayland protocal must be a masocist, because the fu*k
 
 namespace GooseUI::platform // Local
 {
@@ -14,6 +20,8 @@ namespace GooseUI::platform // Local
         if(decorationManager == nullptr || xdg_toplevel_decorations == nullptr){ return false; }
         return decorationMode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
     }
+
+    int isCursorOnWindowEdge(int x, int y, int win_width, int win_height);
 }
 
 namespace GooseUI::platform // Private
@@ -23,12 +31,19 @@ namespace GooseUI::platform // Private
     wl_registry* wl_window::_registry = nullptr; 
     wl_compositor* wl_window::_compositor = nullptr;
     wl_seat* wl_window::_seat = nullptr;
+    wl_pointer* wl_window::_pointer = nullptr;
+    wl_window* wl_window::_pointerFocusedWindow = nullptr;
 
+    wp_cursor_shape_manager_v1* wl_window::_cursorShapeManager = nullptr;
+    wp_cursor_shape_device_v1* wl_window::_cursorShapeDevice = nullptr;
+    
+    uint32_t wl_window::_lastEnterSerial = 0;
     uint32_t wl_window::_lastPointerSerial = 0;
     
     xdg_wm_base* wl_window::_xdg_wm_base = nullptr;
     zxdg_decoration_manager_v1* wl_window::_decoration_manager = nullptr;
 
+    // Wayland Functions
     void wl_window::_registry_handle(void* data, wl_registry* reg, uint32_t id, const char* interface, uint32_t version)
     {
         if(std::strcmp(interface, "wl_compositor") == 0)
@@ -46,14 +61,142 @@ namespace GooseUI::platform // Private
         }else if(strcmp(interface, wl_seat_interface.name) == 0)
         {
             _seat = (wl_seat*)wl_registry_bind(reg, id, &wl_seat_interface, std::min(version, 4u));
+            wl_seat_add_listener(_seat, &_seat_listener, nullptr);
+        }else if (strcmp(interface, wp_cursor_shape_manager_v1_interface.name) == 0)
+        {
+            _cursorShapeManager = (wp_cursor_shape_manager_v1*)wl_registry_bind(reg, id, &wp_cursor_shape_manager_v1_interface, 1);
         }
     }
     
     void wl_window::_registry_remover(void* data, wl_registry* reg, uint32_t id){}
 
+    void wl_window::_seat_capabilities(void* data, wl_seat* seat, uint32_t capabilities)
+    {
+        if((capabilities & WL_SEAT_CAPABILITY_POINTER) && !_pointer)
+        {
+            _pointer = wl_seat_get_pointer(seat);
+            wl_pointer_add_listener(_pointer, &_pointer_listener, data);
+            
+            if(_cursorShapeManager){ _cursorShapeDevice = wp_cursor_shape_manager_v1_get_pointer(_cursorShapeManager, _pointer); }
+        }else if(!(capabilities & WL_SEAT_CAPABILITY_POINTER) && _pointer)
+        {
+            if(_cursorShapeDevice){ wp_cursor_shape_device_v1_destroy(_cursorShapeDevice); _cursorShapeDevice = nullptr; }
+            
+            wl_pointer_release(_pointer);
+            _pointer = nullptr;
+        }
+    }
+
+    // Constants - Wayland
     const wl_registry_listener wl_window::_registry_listener = { _registry_handle, _registry_remover };
+    const wl_seat_listener wl_window::_seat_listener = { 
+        .capabilities = wl_window::_seat_capabilities,
+        .name = [](void* data, wl_seat* seat, const char* name) {} 
+    };
+    const wl_pointer_listener wl_window::_pointer_listener = {
+        .enter = [](void* data, wl_pointer* pointer, uint32_t serial, wl_surface* surface, wl_fixed_t sx, wl_fixed_t sy)
+        {
+            _lastEnterSerial = serial;
+            _pointerFocusedWindow = static_cast<wl_window*>(wl_surface_get_user_data(surface));
+
+            if(_pointerFocusedWindow)
+            {
+                _pointerFocusedWindow->_mouseX = wl_fixed_to_int(sx);
+                _pointerFocusedWindow->_mouseY = wl_fixed_to_int(sy);
+            }
+        },
+        .leave = [](void* data, wl_pointer* pointer, uint32_t serial, wl_surface* surface)
+        {
+            _lastEnterSerial = serial;
+            _pointerFocusedWindow = nullptr;
+        },
+        .motion = [](void* data, wl_pointer* pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy)
+        {
+            wl_window* self = _pointerFocusedWindow;
+            if(!self){ return; }
+
+            self->_mouseX = wl_fixed_to_int(sx);
+            self->_mouseY = wl_fixed_to_int(sy);
+
+            if(!self->_clientDecorations || !_cursorShapeDevice){ return; }
+
+            int px = self->_mouseX + DEF_GSA_WINDOW_BORDER_PADDING;
+            int py = self->_mouseY + DEF_GSA_WINDOW_BORDER_PADDING;
+            int dir = self->_isCursorOnWindowEdge(px, py, self->getWidth(), self->getHeight());
+            
+            wp_cursor_shape_device_v1_set_shape(_cursorShapeDevice, _lastEnterSerial, self->_getDirectionalCursor(dir));
+        },
+        .button = [](void* data, wl_pointer* pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
+        {
+            wl_window* self = _pointerFocusedWindow;
+            if(!self){ return; }
+
+            _lastPointerSerial = serial;
+            bool pressed = (state == WL_POINTER_BUTTON_STATE_PRESSED);
+            bool handelWidgets = true;
+
+            event::data evtData;
+            evtData.mouseX = self->_mouseX;
+            evtData.mouseY = self->_mouseY;
+            evtData.mouseRootX = 0;
+            evtData.mouseRootY = 0;
+
+            switch (button) 
+            {
+                case BTN_LEFT:
+                {
+                    evtData.dataType = pressed ? event::type::leftMouseDown : event::type::leftMouseUp;
+                    if(pressed && self->_clientDecorations)
+                    {
+                        int px = self->_mouseX + DEF_GSA_WINDOW_BORDER_PADDING;
+                        int py = self->_mouseY + DEF_GSA_WINDOW_BORDER_PADDING;
+
+                        int dir = self->_isCursorOnWindowEdge(px, py, self->getWidth(), self->getHeight());
+                        if(dir != XDG_TOPLEVEL_RESIZE_EDGE_NONE && self->_xdg_toplevel)
+                        {
+                            xdg_toplevel_resize(self->_xdg_toplevel, _seat, serial, dir);
+                            handelWidgets = false;
+                        }
+                    }
+
+                    break;
+                }
+                case BTN_RIGHT:
+                {
+                    evtData.dataType = event::type::rightMouseDown;
+                    break;
+                }
+
+                default: { handelWidgets = false; }
+            }
+
+            if(handelWidgets)
+            {
+                for(absractions::iWidget* widget : self->_widgets)
+                {
+                    if(widget){ widget->pollEvent(evtData); }
+                }
+            }
+        },
+        .axis = [](void*, wl_pointer*, uint32_t, uint32_t, wl_fixed_t) {}
+    };
+
+    // Constants - XDG
     const xdg_surface_listener wl_window::_xdg_surface_listener = {
-        .configure = [](void* data, xdg_surface* xdg_surface, uint32_t serial) { xdg_surface_ack_configure(xdg_surface, serial); }
+        .configure = [](void* data, xdg_surface* xdg_surface, uint32_t serial) 
+        { 
+            wl_window* window = static_cast<wl_window*>(data);
+            xdg_surface_ack_configure(xdg_surface, serial);
+
+            if(!xdg_surface){ return; }
+            if(window->_clientDecorations != nullptr)
+            {
+                xdg_surface_set_window_geometry(xdg_surface, 0, DEF_GSA_WINDOW_BORDER_PADDING, window->_windowState.width, window->_windowState.height - DEF_GSA_WINDOW_BORDER_PADDING);
+            }else 
+            {
+                xdg_surface_set_window_geometry(xdg_surface, 0, 0, window->_windowState.width, window->_windowState.height);
+            }
+        }
     };
     const xdg_toplevel_listener wl_window::_xdg_toplevel_listener = {
         .configure = [](void* data, xdg_toplevel* toplevel, int32_t width, int32_t height, wl_array* states) {
@@ -67,10 +210,49 @@ namespace GooseUI::platform // Private
 
             window->_windowState.needUpdate = true;
         },
-        .close = [](void* data, xdg_toplevel* toplevel) {},
+        .close = [](void* data, xdg_toplevel* toplevel) {
+            wl_window* window = static_cast<wl_window*>(data);
+            window->close();
+        },
         .configure_bounds = [](void* data, xdg_toplevel* toplevel, int32_t width, int32_t height) {},
         .wm_capabilities = [](void* data, xdg_toplevel* toplevel, wl_array* capabilities) {}
     };
+
+    // Wayland specific
+    uint32_t wl_window::_getDirectionalCursor(int direction)
+    {
+        switch (direction)
+        {
+            case XDG_TOPLEVEL_RESIZE_EDGE_TOP: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_N_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_S_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_LEFT: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_W_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_RIGHT: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_E_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_NW_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_NE_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_SW_RESIZE;
+            case XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_SE_RESIZE;
+            default: return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT;
+        }
+    }
+
+    uint32_t wl_window::_isCursorOnWindowEdge(int x, int y, int win_width, int win_height)
+    {
+        bool top    = y <= DEF_GSA_WINDOW_BORDER_PADDING + (DEF_GSA_WINDOW_BORDER_PADDING / 2);
+        bool bottom = y >= (win_height - DEF_GSA_WINDOW_BORDER_PADDING);
+        bool left   = x <= DEF_GSA_WINDOW_BORDER_PADDING + DEF_GSA_WINDOW_BORDER_PADDING;
+        bool right  = x >= (win_width - DEF_GSA_WINDOW_BORDER_PADDING);
+
+        if (top && left)     return XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT; // Top-Left
+        if (top && right)    return XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT; // Top-Right
+        if (bottom && right) return XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT; // Bottom-Right
+        if (bottom && left)  return XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT; // Bottom-Left
+        if (top)             return XDG_TOPLEVEL_RESIZE_EDGE_TOP; // Top
+        if (right)           return XDG_TOPLEVEL_RESIZE_EDGE_RIGHT; // Right
+        if (bottom)          return XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM; // Bottom
+        if (left)            return XDG_TOPLEVEL_RESIZE_EDGE_LEFT; // Left
+
+        return XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+    }
 
     // Window
     void wl_window::_startRenderFrame()
@@ -225,6 +407,8 @@ namespace GooseUI::platform // public
         _windowState.width = info.width;
         
         _surface = wl_compositor_create_surface(_compositor);
+        wl_surface_set_user_data(_surface, this);
+        
         _xdg_surface = xdg_wm_base_get_xdg_surface(_xdg_wm_base, _surface);
         _xdg_toplevel = xdg_surface_get_toplevel(_xdg_surface);
 
@@ -381,6 +565,21 @@ namespace GooseUI::platform // public
     
     void wl_window::handelEvents() 
     {
+        wl_display_flush(_display);
+        while (wl_display_prepare_read(_display) != 0){ wl_display_dispatch_pending(_display); }
+
+        pollfd pfd{ wl_display_get_fd(_display), POLLIN, 0 };
+        int ret = poll(&pfd, 1, 0);
+        if (ret > 0) 
+        { 
+            wl_display_read_events(_display); 
+        }
+        else         
+        { 
+            wl_display_cancel_read(_display); 
+        }
+
+        wl_display_dispatch_pending(_display);
         renderWidgets();
     }
 }
