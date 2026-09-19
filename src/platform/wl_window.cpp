@@ -117,13 +117,8 @@ namespace GooseUI::platform // Private
 
             self->_mouseX = wl_fixed_to_int(sx);
             self->_mouseY = wl_fixed_to_int(sy);
-
-            if(!self->_clientDecorations || !_cursorShapeDevice){ return; }
-
-            int px = self->_mouseX + DEF_GSA_WINDOW_BORDER_PADDING;
-            int py = self->_mouseY + DEF_GSA_WINDOW_BORDER_PADDING;
-            int dir = self->_isCursorOnWindowEdge(px, py, self->getWidth(), self->getHeight());
             
+            int dir = self->_isCursorOnWindowEdge(self->_mouseX, self->_mouseY, self->getWidth(), self->getHeight());
             wp_cursor_shape_device_v1_set_shape(_cursorShapeDevice, _lastEnterSerial, self->_getDirectionalCursor(dir));
         },
         .button = [](void* data, wl_pointer* pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
@@ -510,8 +505,16 @@ namespace GooseUI::platform // public
         {
             if(_xdg_toplevel_decorations)
             {
+                if(_clientDecorations != nullptr)
+                { 
+                    graphics::titleBar::removeDefaultDecorations(_clientDecorations, windowEventID, this); 
+                    if(_xdg_surface){ xdg_surface_set_window_geometry(_xdg_surface, 0, 0, _windowState.width, _windowState.height); }
+                }
+                
                 zxdg_toplevel_decoration_v1_set_mode(_xdg_toplevel_decorations, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
                 _decorationMode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
+
+                if(_xdg_surface){ xdg_surface_set_window_geometry(_xdg_surface, 0, 0, _windowState.width, _windowState.height); }
                 return;
             }
         }

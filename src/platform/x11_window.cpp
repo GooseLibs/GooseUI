@@ -418,6 +418,14 @@ namespace GooseUI::platform // Public
         // Server Side Decoration
         if(info.type == windowDecoration::ServerSide)
         {
+            if(_clientDecorations != nullptr)
+            { 
+                graphics::titleBar::removeDefaultDecorations(_clientDecorations, windowEventID, this); 
+                
+                Atom extentsAtom = XInternAtom(_display, "_GTK_FRAME_EXTENTS", False);
+                XDeleteProperty(_display, _window, extentsAtom);
+            }
+            
             hints.decorations = 1L;
             XChangeProperty(_display, _window, motifHintsAtom, motifHintsAtom, 32, PropModeReplace, (unsigned char*)&hints, 5);
             return;
