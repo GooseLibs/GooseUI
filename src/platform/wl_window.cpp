@@ -117,7 +117,7 @@ namespace GooseUI::platform // Private
 
             self->_mouseX = wl_fixed_to_int(sx);
             self->_mouseY = wl_fixed_to_int(sy);
-            
+
             int dir = self->_isCursorOnWindowEdge(self->_mouseX, self->_mouseY, self->getWidth(), self->getHeight());
             wp_cursor_shape_device_v1_set_shape(_cursorShapeDevice, _lastEnterSerial, self->_getDirectionalCursor(dir));
         },
@@ -143,10 +143,7 @@ namespace GooseUI::platform // Private
                     evtData.dataType = pressed ? event::type::leftMouseDown : event::type::leftMouseUp;
                     if(pressed && self->_clientDecorations)
                     {
-                        int px = self->_mouseX + DEF_GSA_WINDOW_BORDER_PADDING;
-                        int py = self->_mouseY + DEF_GSA_WINDOW_BORDER_PADDING;
-
-                        int dir = self->_isCursorOnWindowEdge(px, py, self->getWidth(), self->getHeight());
+                        int dir = self->_isCursorOnWindowEdge(self->_mouseX, self->_mouseY, self->getWidth(), self->getHeight());
                         if(dir != XDG_TOPLEVEL_RESIZE_EDGE_NONE && self->_xdg_toplevel)
                         {
                             xdg_toplevel_resize(self->_xdg_toplevel, _seat, serial, dir);
@@ -184,13 +181,7 @@ namespace GooseUI::platform // Private
             xdg_surface_ack_configure(xdg_surface, serial);
 
             if(!xdg_surface){ return; }
-            if(window->_clientDecorations != nullptr)
-            {
-                xdg_surface_set_window_geometry(xdg_surface, 0, DEF_GSA_WINDOW_BORDER_PADDING, window->_windowState.width, window->_windowState.height - DEF_GSA_WINDOW_BORDER_PADDING);
-            }else 
-            {
-                xdg_surface_set_window_geometry(xdg_surface, 0, 0, window->_windowState.width, window->_windowState.height);
-            }
+            xdg_surface_set_window_geometry(xdg_surface, 0, 0, window->_windowState.width, window->_windowState.height);
         }
     };
     const xdg_toplevel_listener wl_window::_xdg_toplevel_listener = {
@@ -409,6 +400,9 @@ namespace GooseUI::platform // public
 
         xdg_surface_add_listener(_xdg_surface, &_xdg_surface_listener, this);
         xdg_toplevel_add_listener(_xdg_toplevel, &_xdg_toplevel_listener, this);
+
+        xdg_toplevel_set_title(_xdg_toplevel, info.windowTitle.c_str());
+        xdg_toplevel_set_app_id(_xdg_toplevel, "");
 
         wl_surface_commit(_surface);
         wl_display_roundtrip(_display);

@@ -297,7 +297,7 @@ namespace GooseUI::platform // Public
         XChangeProperty(_display, _window, windowTypeAtom, XA_ATOM, 32, PropModeReplace, (unsigned char*)&windowTypeNormalAtom , 1);
 
         XClassHint classHint;
-        classHint.res_name = (char*)"GooseUI";
+        classHint.res_name = (char*)info.windowTitle.c_str();
         classHint.res_class = (char*)"GooseUI";
         XSetClassHint(_display, _window, &classHint);
 

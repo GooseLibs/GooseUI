@@ -277,8 +277,8 @@ namespace GooseUI::platform // Public
         DWORD dwStyle = WS_POPUP | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE;
         _hwnd = CreateWindowExW(
             WS_EX_OVERLAPPEDWINDOW,
-            L"GooseUI_Window",
-            L"GooseUI Window",
+            convertStringToWideString(info.windowTitle),
+            convertStringToWideString(info.windowTitle),
             dwStyle,
             posX,
             posY,

@@ -15,10 +15,12 @@ GooseUI::event::dispatcher _dispatcher;
 int main()
 {
     GooseUI::application::init(GooseUI::application::backendType::OpenGL);
-
+    GooseUI::widgets::boxButton* _button;
+    
     // Window One
     {
         GooseUI::windowCreationInfo window1_info {};
+        window1_info.windowTitle = "Window One"; // Leave empty for window not to show on taskbar
         window1_info.width = 500;
         window1_info.height = 500;
         window1_info.posistion = GooseUI::SCREEN_TOP_RIGHT;
@@ -39,6 +41,7 @@ int main()
     // Window Two
     {
         GooseUI::windowCreationInfo window2_info {};
+        window2_info.windowTitle = "Window Two";
         window2_info.width = 800;
         window2_info.height = 500;
         window2_info.posistion = GooseUI::SCREEN_TOP_LEFT;

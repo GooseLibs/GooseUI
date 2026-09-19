@@ -12,8 +12,11 @@ namespace GooseUI
 {
     struct windowCreationInfo
     {
+        std::string windowTitle = "";
+        
         int width = 800;
         int height = 800;
+        
         screenPosistion posistion = screenPosistion::SCREEN_CENTER;
     };
 
