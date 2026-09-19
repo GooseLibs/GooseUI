@@ -443,7 +443,7 @@ namespace GooseUI::platform // public
     
     wl_window::~wl_window()
     {
-        if(!_isRunning && _surface == None){ return; }
+        if(!_isRunning && _surface == nullptr){ return; }
         _isRunning = false;
 
         switch (application::getBackendType()) 
@@ -460,6 +460,18 @@ namespace GooseUI::platform // public
             default:
                 printf("GooseUI: Backend Not Initilized! \n");
                 break;
+        }
+
+        _pointerFocusedWindow = nullptr;
+        if(_xdg_toplevel_decorations){ zxdg_toplevel_decoration_v1_destroy(_xdg_toplevel_decorations); _xdg_toplevel_decorations = nullptr; }
+        if(_xdg_toplevel){ xdg_toplevel_destroy(_xdg_toplevel); }
+        if(_xdg_surface){ xdg_surface_destroy(_xdg_surface); }
+
+        if(_surface)
+        {
+            wl_surface_set_user_data(_surface, nullptr);
+            wl_surface_destroy(_surface);
+            _surface = nullptr;
         }
     }
     
