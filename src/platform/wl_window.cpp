@@ -6,7 +6,6 @@
 #include <linux/input-event-codes.h>
 #include <poll.h>
 
-#include <algorithm>
 #include <cstring>
 
 // This is litteral Hell
@@ -549,13 +548,6 @@ namespace GooseUI::platform // public
     void wl_window::close(){ _isRunning = false;  }
     
     // Widget Management
-    void wl_window::addWidgetToVector(absractions::iWidget* widget) { _widgets.push_back(widget); }
-    void wl_window::removeWidgetFromVector(absractions::iWidget* widget)
-    {
-        std::vector<absractions::iWidget*>::iterator target = std::find(_widgets.begin(), _widgets.end(), widget);
-        if(target != _widgets.end()){ _widgets.erase(target); }
-    }
-    
     void wl_window::renderWidgets()
     {
         if(!application::getRenderer()) return;

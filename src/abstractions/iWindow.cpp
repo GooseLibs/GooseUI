@@ -1,5 +1,18 @@
 #include "GooseUI/abstractions/iWindow.h"
 
+#include <algorithm>
+
+
+namespace GooseUI::absractions // Abstraction Default
+{
+    void iWindow::addWidgetToVector(iWidget* widget){ _widgets.push_back(widget); }
+    void iWindow::removeWidgetFromVector(iWidget* widget)
+    {
+        std::vector<absractions::iWidget*>::iterator target = std::find(_widgets.begin(), _widgets.end(), widget);
+        if(target != _widgets.end()){ _widgets.erase(target); }
+    }
+}
+
 #if defined(_WIN32)
 
     #include "GooseUI/platform/win32_window.h"

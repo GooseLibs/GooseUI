@@ -68,8 +68,6 @@ namespace GooseUI
             void close() override;
     
             // Widget Management
-            void addWidgetToVector(absractions::iWidget* widget) override;
-            void removeWidgetFromVector(absractions::iWidget* widget) override;
             void renderWidgets() override;
             void handelEvents() override;
         };

@@ -1,8 +1,6 @@
 #include "GooseUI/platform/win32_window.h"
 #include "GooseUI/context.h"
 
-#include <algorithm>
-
 
 namespace GooseUI::platform // Local
 {
@@ -455,13 +453,6 @@ namespace GooseUI::platform // Public
     void win32_window::close() { _isRunning = false; }
 
     // Widget Management
-    void win32_window::addWidgetToVector(absractions::iWidget* widget) { _widgets.push_back(widget); }
-    void win32_window::removeWidgetFromVector(absractions::iWidget* widget)
-    {
-        std::vector<absractions::iWidget*>::iterator target = std::find(_widgets.begin(), _widgets.end(), widget);
-        if(target != _widgets.end()){ _widgets.erase(target); }
-    }
-
     void win32_window::renderWidgets()
     {
         if(!application::getRenderer()) return;

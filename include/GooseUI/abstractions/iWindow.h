@@ -36,6 +36,10 @@ namespace GooseUI
     {
         class iWindow
         {
+            friend class iWidget;
+            void addWidgetToVector(iWidget* widget);
+            void removeWidgetFromVector(iWidget* widget);
+            
             protected:
             std::vector<iWidget*> _widgets;
 
@@ -75,8 +79,6 @@ namespace GooseUI
             virtual void close() = 0;
 
             // Widget Management
-            virtual void addWidgetToVector(iWidget* widget) = 0;
-            virtual void removeWidgetFromVector(iWidget* widget) = 0;
             virtual void renderWidgets() = 0;
             virtual void handelEvents() = 0;
         };

@@ -2,7 +2,6 @@
 
 #include <X11/Xatom.h>
 #include <X11/Xcursor/Xcursor.h>
-#include <algorithm>
 
 
 namespace GooseUI::platform // Local
@@ -570,13 +569,6 @@ namespace GooseUI::platform // Public
     void x11_window::close() { _isRunning = false; }
 
     // Widget Management
-    void x11_window::addWidgetToVector(absractions::iWidget* widget) { _widgets.push_back(widget); }
-    void x11_window::removeWidgetFromVector(absractions::iWidget* widget)
-    {
-        std::vector<absractions::iWidget*>::iterator target = std::find(_widgets.begin(), _widgets.end(), widget);
-        if(target != _widgets.end()){ _widgets.erase(target); }
-    }
-    
     void x11_window::renderWidgets()
     {
         if(!application::getRenderer()) return;
