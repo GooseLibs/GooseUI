@@ -96,6 +96,9 @@ namespace GooseUI::graphics::gl // Public
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(0, 0, _windowWidth, _windowHeight);
         
         glClearColor(color.R, color.G, color.B, color.A);
         glClear(GL_COLOR_BUFFER_BIT);

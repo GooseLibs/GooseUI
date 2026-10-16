@@ -250,11 +250,11 @@ namespace GooseUI::platform // Private
                 graphics::gl::glRenderer* glBackend = static_cast<graphics::gl::glRenderer*>(application::getRenderer());
                 graphics::gl::wl_glContext* glContext = static_cast<graphics::gl::wl_glContext*>(_windowCtx);
                 
-                eglMakeCurrent(glBackend->getContext().display, glContext->surface, glContext->surface, glBackend->getContext().ctx);\
                 if(_windowState.needUpdate)
                 {
                     wl_egl_window_resize(glContext->window, _windowState.width, _windowState.height, 0, 0);
                 }
+                eglMakeCurrent(glBackend->getContext().display, glContext->surface, glContext->surface, glBackend->getContext().ctx);
 
                 break;
             }
