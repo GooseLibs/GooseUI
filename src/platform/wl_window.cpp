@@ -532,19 +532,62 @@ namespace GooseUI::platform // public
     absractions::iWidget* wl_window::getClientTitleBar() { if(_clientDecorations){ return _clientDecorations->bar; } return nullptr; }
     
     // Window Size
-    void wl_window::setSize(int width, int height){}
-    void wl_window::isResizeable(bool isResizeable){}
-    void wl_window::maximize(){}
-    void wl_window::minimize(){}
-    void wl_window::restoreSize(){}
+    void wl_window::setSize(int width, int height)
+    {
+        _windowState.height = height;
+        _windowState.width = width;
+    }
+    
+    void wl_window::isResizeable(bool isResizeable)
+    {
+        if(isResizeable)
+        {
+            xdg_toplevel_set_min_size(_xdg_toplevel, 0, 0);
+            xdg_toplevel_set_max_size(_xdg_toplevel, 0, 0);
+        }else
+        {
+            xdg_toplevel_set_min_size(_xdg_toplevel, _windowState.width, _windowState.height);
+            xdg_toplevel_set_max_size(_xdg_toplevel, _windowState.width, _windowState.height);
+        }
+
+        wl_surface_commit(_surface);
+    }
+    
+    void wl_window::maximize()
+    {  
+        xdg_toplevel_set_maximized(_xdg_toplevel);
+        wl_surface_commit(_surface);
+    }
+    
+    void wl_window::minimize()
+    {
+        xdg_toplevel_set_minimized(_xdg_toplevel);
+        wl_surface_commit(_surface);
+    }
+    
+    void wl_window::restoreSize()
+    {
+        xdg_toplevel_unset_maximized(_xdg_toplevel);
+        wl_surface_commit(_surface);
+    }
     
     int wl_window::getWidth(){ return _windowState.width; }
     int wl_window::getHeight(){ return _windowState.height; }
     
     // Window Visibility
     void wl_window::isAllwaysOnTop(bool isOnTop){}
-    void wl_window::show(){}
-    void wl_window::hide(){}
+    
+    void wl_window::show()
+    {
+        wl_surface_commit(_surface);
+    }
+    
+    void wl_window::hide()
+    {
+        wl_surface_attach(_surface, nullptr, 0, 0);
+        wl_surface_commit(_surface);
+    }
+    
     void wl_window::close(){ _isRunning = false;  }
     
     // Widget Management
