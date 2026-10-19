@@ -27,6 +27,8 @@ namespace GooseUI
             {
                 int width;
                 int height;
+
+                bool resizeable;
                 bool needUpdate;
             };
             

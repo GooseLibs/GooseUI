@@ -187,7 +187,7 @@ namespace GooseUI::platform // Private
         .configure = [](void* data, xdg_toplevel* toplevel, int32_t width, int32_t height, wl_array* states) {
             wl_window* window = static_cast<wl_window*>(data);
 
-            if(width > 0 && height > 0)
+            if(width > 0 && height > 0 && window->_windowState.resizeable)
             {
                 window->_windowState.width = width;
                 window->_windowState.height = height;
@@ -550,6 +550,7 @@ namespace GooseUI::platform // public
             xdg_toplevel_set_max_size(_xdg_toplevel, _windowState.width, _windowState.height);
         }
 
+        _windowState.resizeable = isResizeable;
         wl_surface_commit(_surface);
     }
     
