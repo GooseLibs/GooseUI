@@ -60,6 +60,14 @@ if(UNIX AND NOT APPLE)
         find_library(WAYLAND_CLIENT_LIB NAMES wayland-client)
         find_library(WAYLAND_EGL_LIB NAMES wayland-egl)
 
+        find_program(WAYLAND_SCANNER wayland-scanner REQUIRED)
+        find_path(WAYLAND_PROTOCOLS_BASE NAMES stable/xdg-shell/xdg-shell.xml 
+        PATHS 
+            /usr/share/wayland-protocols
+            /usr/local/share/wayland-protocols
+            /opt/share/wayland-protocols
+        )
+
         if(NOT WAYLAND_CLIENT_DIR AND NOT WAYLAND_CLIENT_LIB)
           MESSAGE(FATAL_ERROR "[GooseUI] -- Faild to find wayland-client")
         endif()
@@ -68,19 +76,40 @@ if(UNIX AND NOT APPLE)
           MESSAGE(FATAL_ERROR "[GooseUI] -- Faild to find wayland-egl")
         endif()
 
+        if(NOT WAYLAND_PROTOCOLS_BASE)
+          MESSAGE(FATAL_ERROR "[GooseUI] -- Failed to find wayland-protocols")
+        endif()
+
         LIST(APPEND GOOSEUI_INCLUDE ${WAYLAND_CLIENT_DIR} ${WAYLAND_EGL_DIR})
         LIST(APPEND GOOSEUI_LIBRARY ${WAYLAND_CLIENT_LIB} ${WAYLAND_EGL_LIB})
         LIST(APPEND GOOSEUI_BUILD_FLAGS "wayland-client")
         LIST(
-            APPEND GOOSEUI_SRC
-            "src/platform/wl_window.cpp"
-            
-            "src/modules/wayland-protocols/xdg-shell.c"
-            "src/modules/wayland-protocols/xdg-decoration.c"
-            "src/modules/wayland-protocols/cursor-shape.c"
-            "src/modules/wayland-protocols/tablet.c"
+          APPEND GOOSEUI_SRC
+          "src/platform/wl_window.cpp"
         )
-        
+
+        # Generate Protocols
+        function(generate_protocol xml_path basename)
+          set(out_h "${CMAKE_CURRENT_BINARY_DIR}/wayland-protocols/${basename}-client-protocol.h")
+          set(out_c "${CMAKE_CURRENT_BINARY_DIR}/wayland-protocols/${basename}-protocol.c")
+
+          add_custom_command(
+            OUTPUT ${out_h} ${out_c}
+            COMMAND ${WAYLAND_SCANNER} client-header ${xml_path} ${out_h}
+            COMMAND ${WAYLAND_SCANNER} private-code ${xml_path} ${out_c}
+            DEPENDS ${xml_path}
+            COMMENT "Generating Wayland protocol: ${basename}"
+          )
+
+          set(GOOSEUI_SRC ${GOOSEUI_SRC} ${out_c} PARENT_SCOPE)
+        endfunction()
+
+        generate_protocol("${WAYLAND_PROTOCOLS_BASE}/stable/xdg-shell/xdg-shell.xml" "xdg-shell")
+        generate_protocol("${WAYLAND_PROTOCOLS_BASE}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml" "xdg-decoration-unstable-v1")
+        generate_protocol("${WAYLAND_PROTOCOLS_BASE}/staging/cursor-shape/cursor-shape-v1.xml" "cursor-shape-v1")
+        generate_protocol("${WAYLAND_PROTOCOLS_BASE}/stable/tablet/tablet-v2.xml" "tablet-v2")
+
+        LIST(APPEND GOOSEUI_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/wayland-protocols")
         add_compile_definitions(GOOSEUI_WAYLAND_SUPPORT)
     endif()
     

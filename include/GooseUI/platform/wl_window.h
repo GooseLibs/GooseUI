@@ -10,9 +10,9 @@
 #include "GooseUI/abstractions/iRenderer.h"
 #include "GooseUI/abstractions/iWidget.h"
 
-#include "GooseUI/modules/wayland-protocols/xdg-shell.h"
-#include "GooseUI/modules/wayland-protocols/xdg-decoration.h"
-#include "GooseUI/modules/wayland-protocols/cursor-shape.h"
+#include "xdg-shell-client-protocol.h"
+#include "xdg-decoration-unstable-v1-client-protocol.h"
+#include "cursor-shape-v1-client-protocol.h"
 
 #include <wayland-client.h>
 #include <wayland-cursor.h>
