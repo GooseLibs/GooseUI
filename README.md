@@ -12,5 +12,5 @@ GooseUI is designed to simplify the creation of native-feeling applications. It 
 (Coming once a stable build is ready)
 
 ## License
-GooseUI is licensed under the MIT License, see [LICENSE.txt](https://github.com/Hedge239/GooseUI/blob/main/LICENSE.txt) for more information
-> Copyright (c) 2023-2026 Lucas I Kohorst
+GooseUI is licensed under the Apache License 2.0. See the [LICENSE](https://github.com/Hedge239/GooseUI/blob/main/LICENSE) file for the full license text.
+> Copyright (c) 2023-2026 Lucas I. Kohorst
